@@ -1754,12 +1754,12 @@ else carregarComExemplos();
           '<div class="user-avatar" style="background:'+av.bg+';color:'+av.text+'">'+iniciais(u.name||u.email)+'</div>' +
           '<div class="user-row-info"><div class="user-row-name">'+(u.name||'—')+'</div><div class="user-row-email">'+u.email+'</div></div>' +
           '<span class="status-badge '+(ativo?'status-ativo':'status-inativo')+'">'+(ativo?'Ativo':'Inativo')+'</span>' +
-          '<select class="role-select" onchange="atualizarRole(''+u.docId+'',this.value)">' +
+          '<select class="role-select" onchange="atualizarRole(\'' + u.docId + '\',this.value)">' +
             '<option value="admin"'+(u.role==='admin'?' selected':'')+'>Admin</option>' +
             '<option value="comercial"'+(u.role==='comercial'?' selected':'')+'>Comercial</option>' +
           '</select>' +
-          '<button class="umgmt-icon-btn" title="'+(ativo?'Inativar':'Ativar')+' usuário" onclick="toggleAtivo(''+u.docId+'','+ativo+')" style="color:'+(ativo?'#f59e0b':'#4ade80')+'">'+(ativo?'⏸':'▶')+'</button>' +
-          '<button class="umgmt-icon-btn" title="Enviar redefinição de senha" onclick="redefinirSenha(''+u.email+'')" style="color:#60a5fa">🔑</button>' +
+          '<button class="umgmt-icon-btn" title="'+(ativo?'Inativar':'Ativar')+' usuário" onclick="toggleAtivo(\'' + u.docId + '\',' + ativo + ')" style="color:'+(ativo?'#f59e0b':'#4ade80')+'">'+(ativo?'⏸':'▶')+'</button>' +
+          '<button class="umgmt-icon-btn" title="Enviar redefinição de senha" onclick="redefinirSenha(\'' + u.email + '\')" style="color:#60a5fa">🔑</button>' +
         '</div>';
       }).join('');
     } catch(e) {
