@@ -1605,9 +1605,11 @@ else carregarComExemplos();
   document.addEventListener('DOMContentLoaded', function() {
     // Init Firebase Auth
     try {
+      // Garante que o app Firebase existe (pode já ter sido init pelo carregarFirebase)
       if (!firebase.apps.length) firebase.initializeApp(fbConfig);
-      _auth = firebase.auth();
-      _db2  = firebase.firestore();
+      // Pega a instância de auth e firestore do app principal
+      _auth = firebase.app().auth();
+      _db2  = firebase.app().firestore();
 
       // Enter key no login
       ['login-email','login-pass'].forEach(function(id) {
@@ -1617,9 +1619,6 @@ else carregarComExemplos();
       });
 
       // Observa estado de autenticação
-      // Cria usuário inicial se não existir
-      criarUsuarioInicial();
-
       _auth.onAuthStateChanged(async function(user) {
         var loginScreen = document.getElementById('login-screen');
         if (user) {
