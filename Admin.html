@@ -750,58 +750,67 @@ var DADOS_EXEMPLO = [
 ];
 
 var questions = [null,
+  'Inventário e controle de ativos de hardware',
+  'Inventário e controle de ativos de software',
+  'Gerenciamento de patches e vulnerabilidades',
   'Antimalware / Antivírus nos endpoints',
-  'Firewall de rede',
-  'Backup dos dados críticos',
+  'Next-Generation Firewall (NGFW)',
+  'Controle de acesso e gestão de identidades (IAM)',
   'Autenticação multifator (MFA/2FA)',
-  'Gerenciamento de patches',
-  'Treinamento e conscientização',
-  'Resposta a incidentes',
-  'Controle de acesso (IAM)',
+  'Backup e recuperação de dados',
+  'Monitoramento e logs de segurança (SIEM)',
   'Acesso remoto / VPN',
   'Criptografia de dados',
   'Segmentação de rede',
-  'Monitoramento e logs',
-  'Gestão de fornecedores (Third Party)',
-  'Compliance / LGPD',
-  'Pentest e gestão de vulnerabilidades'
+  'Treinamento e conscientização em segurança',
+  'Gestão de fornecedores e terceiros',
+  'Resposta a incidentes',
+  'Pentest e gestão de vulnerabilidades avançada',
+  'Compliance / LGPD e frameworks regulatórios',
+  'Proteção de dados e privacidade (DLP/CASB)'
 ];
 
 var recomendacoes = {
-  low:  [],
-  mid:  [
-    [1,  "Ampliar cobertura do antimalware",      "Garantir que todos os endpoints estejam protegidos, incluindo servidores e dispositivos móveis corporativos."],
-    [2,  "Evoluir o controle de perímetro",       "Substituir o roteador do provedor por um firewall dedicado com regras revisadas periodicamente."],
-    [3,  "Implantar rotina de backup offsite",    "Adicionar cópias em nuvem e realizar testes periódicos de restauração para garantir a recuperação de dados."],
-    [4,  "Expandir o MFA",                        "Estender a autenticação multifator para todos os usuários e sistemas críticos, incluindo e-mail corporativo."],
-    [5,  "Formalizar o patch management",         "Criar política e cronograma de atualizações com responsável definido e controle centralizado."],
-    [6,  "Reciclar treinamentos de segurança",    "Realizar treinamentos periódicos com simulações de phishing — não apenas no onboarding."],
-    [7,  "Estruturar resposta a incidentes",      "Documentar o plano de resposta e realizar exercícios tabletop com a equipe."],
-    [8,  "Implementar revisões de acesso",        "Estabelecer revisões periódicas de acessos e aplicar o princípio do menor privilégio."],
-    [9,  "Proteger o acesso remoto",              "Migrar de RDP exposto para VPN corporativa com MFA obrigatório."],
-    [10, "Ampliar criptografia",                  "Estender a criptografia para dados em repouso (BitLocker/FileVault) além do trânsito."],
-    [11, "Segmentar a rede interna",              "Implementar VLANs para isolar servidores, usuários e dispositivos IoT."],
-    [12, "Centralizar monitoramento de logs",     "Implantar SIEM ou ferramenta centralizada com alertas proativos e revisão regular."],
-    [13, "Estruturar gestão de terceiros",        "Avaliar segurança de fornecedores e garantir acessos segmentados com contrato."],
-    [14, "Avançar na adequação à LGPD",           "Designar DPO, concluir mapeamento de dados e realizar auditorias periódicas."],
-    [15, "Realizar pentest estruturado",          "Contratar pentest anual com empresa especializada e plano de remediação."]
+  low: [],
+  mid: [
+    [1,  "Aprimorar inventário de hardware",          "O inventário existe mas está incompleto ou desatualizado. Implante uma solução centralizada e automatizada. Soluções recomendadas: Lansweeper, Auvik, ManageEngine AssetExplorer, Axonius."],
+    [2,  "Aprimorar inventário de software",          "O controle de software é parcial. Automatize a descoberta e bloqueie instalações não autorizadas. Soluções recomendadas: Lansweeper, Flexera, Snow Software, Microsoft Intune."],
+    [3,  "Formalizar o patch management",             "Atualizações são feitas manualmente ou sem processo. Implante política e cronograma formal com ferramenta centralizada. Soluções recomendadas: Ivanti, ManageEngine Patch Manager Plus, Automox, Action1."],
+    [4,  "Ampliar cobertura do antimalware",          "Proteção parcial nos endpoints. Garanta cobertura em todos os dispositivos, incluindo servidores e mobile. Soluções recomendadas: CrowdStrike Falcon, SentinelOne, ESET Protect, Kaspersky, Sophos Intercept X."],
+    [5,  "Evoluir o controle de perímetro",           "O firewall existente não oferece recursos avançados. Evolua para NGFW com inspeção profunda de pacotes. Soluções recomendadas: Fortinet FortiGate, Palo Alto Networks, Cisco Firepower, SonicWall."],
+    [6,  "Aprimorar gestão de identidades",           "O controle de acesso é parcial ou sem revisões periódicas. Implante IAM com princípio do menor privilégio. Soluções recomendadas: Microsoft Entra ID, Okta, JumpCloud, CyberArk."],
+    [7,  "Expandir o MFA",                            "MFA parcialmente implementado. Estenda para todos os usuários e sistemas críticos, incluindo e-mail corporativo. Soluções recomendadas: Microsoft Entra MFA, Duo Security, Okta MFA, RSA SecurID."],
+    [8,  "Implantar backup offsite e testes",         "Backup existe mas sem cópia offsite ou testes de restauração. Adicione cópias em nuvem e valide periodicamente. Soluções recomendadas: Veeam, Acronis Cyber Protect, Commvault, MSP360."],
+    [9,  "Estruturar monitoramento centralizado",     "Logs coletados parcialmente ou sem alertas. Implante SIEM com correlação de eventos e alertas proativos. Soluções recomendadas: Microsoft Sentinel, Splunk, IBM QRadar, ManageEngine Log360, Wazuh."],
+    [10, "Proteger o acesso remoto",                  "Acesso remoto sem MFA ou por RDP exposto. Migre para VPN corporativa com autenticação forte. Soluções recomendadas: Fortinet FortiClient, Cisco AnyConnect, Palo Alto GlobalProtect, Zscaler."],
+    [11, "Ampliar criptografia",                      "Criptografia parcial apenas em trânsito. Estenda para dados em repouso nos dispositivos e servidores. Soluções recomendadas: Microsoft BitLocker/Purview, Symantec Endpoint Encryption, Sophos SafeGuard."],
+    [12, "Segmentar a rede interna",                  "Segmentação parcial sem VLANs internas estruturadas. Isole servidores, usuários e IoT em zonas distintas. Soluções recomendadas: Fortinet FortiGate, Cisco Catalyst, VMware NSX, Illumio."],
+    [13, "Reciclar treinamentos de segurança",        "Treinamentos apenas no onboarding. Realize campanhas periódicas com simulações de phishing. Soluções recomendadas: KnowBe4, Proofpoint Security Awareness, Cofense, Kaspersky ASAP."],
+    [14, "Estruturar gestão de terceiros",            "Avaliação de fornecedores informal ou inexistente. Implante processo de risk assessment e contratos com requisitos de segurança. Soluções recomendadas: BitSight, SecurityScorecard, OneTrust Vendor Risk."],
+    [15, "Estruturar resposta a incidentes",          "Plano existe mas sem testes ou equipe treinada. Realize exercícios tabletop e contrate MDR/SOC. Soluções recomendadas: IBM QRadar SOAR, Palo Alto XSOAR, Splunk SOAR, SOC Gerenciado Ativa Security."],
+    [16, "Realizar pentest estruturado",              "Apenas varreduras automáticas sem pentest manual. Contrate pentest anual com plano de remediação. Soluções recomendadas: Tenable Nessus, Qualys VMDR, Rapid7 InsightVM, Pentest Ativa Security."],
+    [17, "Avançar na adequação à LGPD",               "Iniciativas parciais de compliance. Designe DPO, conclua o mapeamento de dados e realize auditorias periódicas. Soluções recomendadas: OneTrust, TrustArc, Microsoft Purview Compliance, Consultoria Ativa Security."],
+    [18, "Aprimorar proteção de dados",               "DLP ou CASB parcialmente implementado. Estenda políticas de classificação e prevenção de vazamento. Soluções recomendadas: Microsoft Purview DLP, Symantec DLP, Forcepoint, Netskope CASB, Zscaler."]
   ],
   high: [
-    [1,  "URGENTE: Implantar antimalware",        "O ambiente está exposto a malwares e ransomwares. Implante imediatamente uma solução de proteção em todos os endpoints."],
-    [2,  "URGENTE: Implantar firewall",           "Sem firewall dedicado, qualquer sistema interno está potencialmente exposto à internet."],
-    [3,  "URGENTE: Iniciar rotina de backups",    "A ausência de backups significa perda total de dados em caso de ransomware ou falha. Implante backup diário com cópia offsite."],
-    [4,  "URGENTE: Ativar MFA",                   "Contas sem MFA são o vetor de ataque mais explorado. Ative imediatamente, começando pelos acessos administrativos."],
-    [5,  "URGENTE: Patch de segurança",           "Sistemas desatualizados são vulnerabilidades conhecidas. Aplique patches críticos imediatamente."],
-    [6,  "URGENTE: Capacitar equipe",             "Colaboradores sem treinamento são o elo mais fraco. Realize um treinamento básico de segurança com urgência."],
-    [7,  "URGENTE: Plano de resposta",            "Sem plano de resposta, um incidente pode paralisar a operação por dias. Documente ao menos os contatos e passos básicos."],
-    [8,  "URGENTE: Controle de acessos",          "Sem gestão de acesso, ex-funcionários e terceiros podem ainda ter acesso aos sistemas. Auditoria imediata necessária."],
-    [9,  "URGENTE: Proteger acesso remoto",       "RDP exposto e sem MFA é a principal causa de invasões corporativas. Bloqueie ou proteja imediatamente."],
-    [10, "URGENTE: Criptografar dados",           "Dados sensíveis sem criptografia ficam expostos em caso de roubo de dispositivo ou interceptação de rede."],
-    [11, "URGENTE: Segmentar a rede",             "Rede plana permite que um atacante que entre em qualquer ponto acesse todos os sistemas. Segmentação é crítica."],
-    [12, "URGENTE: Monitorar logs",               "Sem logs, ataques podem ocorrer por meses sem detecção. Ative coleta de logs imediatamente."],
-    [13, "URGENTE: Auditar acessos de terceiros", "Terceiros com acesso não controlado são um risco grave. Faça uma auditoria e restrinja acessos desnecessários."],
-    [14, "URGENTE: Iniciar adequação LGPD",       "A ausência de compliance expõe a empresa a multas e responsabilização legal. Inicie o processo imediatamente."],
-    [15, "URGENTE: Avaliar vulnerabilidades",     "Sem varreduras ou pentests, vulnerabilidades críticas podem estar abertas há anos. Realize uma avaliação emergencial."]
+    [1,  "URGENTE: Implantar inventário de hardware",  "Sem visibilidade dos ativos, é impossível proteger o que não se conhece. Implante inventário automatizado imediatamente. Soluções recomendadas: Lansweeper, Auvik, Axonius, ManageEngine AssetExplorer."],
+    [2,  "URGENTE: Implantar inventário de software",  "Software não autorizado pode conter malware ou vulnerabilidades críticas. Inicie controle imediato. Soluções recomendadas: Lansweeper, Flexera, Snow Software, Microsoft Intune."],
+    [3,  "URGENTE: Implantar patch management",        "Sistemas desatualizados são a principal porta de entrada para ransomware. Aplique patches críticos imediatamente. Soluções recomendadas: Ivanti, ManageEngine Patch Manager Plus, Automox, Action1."],
+    [4,  "URGENTE: Implantar antimalware",             "Sem proteção nos endpoints, o ambiente está exposto a malwares e ransomwares. Implante solução EDR imediatamente. Soluções recomendadas: CrowdStrike Falcon, SentinelOne, ESET Protect, Kaspersky, Sophos Intercept X."],
+    [5,  "URGENTE: Implantar NGFW",                   "Sem firewall dedicado, qualquer sistema interno está exposto à internet. Implante NGFW com urgência. Soluções recomendadas: Fortinet FortiGate, Palo Alto Networks, Cisco Firepower, SonicWall, Check Point."],
+    [6,  "URGENTE: Implantar controle de acesso",     "Sem IAM, ex-funcionários e terceiros podem ainda ter acesso aos sistemas. Auditoria e bloqueio imediatos. Soluções recomendadas: Microsoft Entra ID, Okta, JumpCloud, CyberArk, BeyondTrust."],
+    [7,  "URGENTE: Ativar MFA",                       "Contas sem MFA são o vetor de ataque mais explorado. Ative imediatamente nos acessos administrativos. Soluções recomendadas: Microsoft Entra MFA, Duo Security, Okta MFA, RSA SecurID, YubiKey."],
+    [8,  "URGENTE: Iniciar rotina de backups",        "Sem backup, um ransomware ou falha significa perda total de dados. Implante backup diário com cópia offsite. Soluções recomendadas: Veeam, Acronis Cyber Protect, Commvault, Veritas NetBackup."],
+    [9,  "URGENTE: Implantar monitoramento de logs",  "Sem logs, ataques podem ocorrer por meses sem detecção. Ative coleta e monitoramento imediatamente. Soluções recomendadas: Microsoft Sentinel, Wazuh, ManageEngine Log360, Splunk, IBM QRadar."],
+    [10, "URGENTE: Proteger acesso remoto",           "RDP exposto sem MFA é a principal causa de invasões. Bloqueie ou migre para VPN com autenticação forte. Soluções recomendadas: Fortinet FortiClient, Cisco AnyConnect, Palo Alto GlobalProtect, Zscaler."],
+    [11, "URGENTE: Criptografar dados",               "Dados sem criptografia ficam expostos em roubo de dispositivo ou interceptação. Ative criptografia imediatamente. Soluções recomendadas: Microsoft BitLocker/Purview, Symantec Endpoint Encryption, Sophos SafeGuard."],
+    [12, "URGENTE: Segmentar a rede",                 "Rede plana permite que um atacante acesse todos os sistemas de qualquer ponto. Segmentação é crítica. Soluções recomendadas: Fortinet FortiGate, Cisco Catalyst, VMware NSX, Illumio."],
+    [13, "URGENTE: Implantar treinamento de segurança", "Colaboradores sem treinamento são o elo mais fraco da segurança. Realize treinamento básico com urgência. Soluções recomendadas: KnowBe4, Proofpoint Security Awareness, Cofense, Kaspersky ASAP."],
+    [14, "URGENTE: Auditar acessos de terceiros",     "Terceiros com acesso não controlado representam risco grave. Audite e restrinja acessos imediatamente. Soluções recomendadas: BitSight, SecurityScorecard, OneTrust Vendor Risk, ProcessUnity."],
+    [15, "URGENTE: Criar plano de resposta a incidentes", "Sem plano, um incidente pode paralisar a operação por dias. Documente e contrate MDR/SOC. Soluções recomendadas: IBM QRadar SOAR, Palo Alto XSOAR, SOC Gerenciado Ativa Security."],
+    [16, "URGENTE: Avaliar vulnerabilidades",         "Sem pentests, vulnerabilidades críticas podem estar abertas há anos. Realize avaliação emergencial. Soluções recomendadas: Tenable Nessus, Qualys VMDR, Rapid7 InsightVM, Pentest Ativa Security."],
+    [17, "URGENTE: Iniciar adequação LGPD",           "Ausência de compliance expõe a empresa a multas de até R$ 50 milhões. Inicie o processo imediatamente. Soluções recomendadas: OneTrust, TrustArc, Microsoft Purview, Consultoria Ativa Security."],
+    [18, "URGENTE: Implantar DLP/CASB",              "Sem proteção contra vazamento de dados, informações sensíveis podem ser exfiltradas. Ação imediata necessária. Soluções recomendadas: Microsoft Purview DLP, Symantec DLP, Forcepoint, Netskope CASB, Zscaler."]
   ]
 };
 
@@ -1404,7 +1413,7 @@ else carregarComExemplos();
     // Recomendações
     var recs=[];
     if(d.respostas){for(var i=1;i<=18;i++){var a=d.respostas[i];if(!a)continue;
-      if(a.level==='high'||a.level==='mid'){var rec=recomendacoes[a.level]?recomendacoes[a.level].find(function(r){return r[0]===i;}):null;
+      if(a.level==='high'||a.level==='mid'){var rec=recomendacoes[a.level]?recomendacoes[a.level].find(function(r){return r[0]===parseInt(i);}):null;
       if(rec)recs.push({level:a.level,titulo:rec[1],desc:rec[2]});}
     }}
     var recsHtml=recs.slice(0,6).map(function(r){return '<div class="rec '+(r.level==='high'?'rec-h':'rec-m')+'"><div class="rec-t">'+(r.level==='high'?'🔴':'🟡')+' '+r.titulo+'</div><div class="rec-d">'+r.desc+'</div></div>';}).join('');
