@@ -1372,14 +1372,55 @@ function carregarFirebase() {
       projectId: "questionario-de-maturidade"
     };
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-    var db = firebase.firestore();
-    db.collection("respostas").get().then(function(snap) {
-      dados = [];
-      snap.forEach(function(doc) { dados.push(doc.data()); });
-      if (dados.length === 0) { carregarComExemplos(); }
-      else { document.getElementById("badge-modo").innerHTML = ""; aplicarFiltros(); }
-    }).catch(function() { carregarComExemplos(); });
-  } catch(e) { carregarComExemplos(); }
+
+    // Inicializa Auth e Firestore globais
+    _auth = firebase.app().auth();
+    _db2  = firebase.app().firestore();
+
+    // Observa autenticação
+    _auth.onAuthStateChanged(async function(user) {
+      var loginScreen = document.getElementById('login-screen');
+      if (user) {
+        var name = user.displayName || user.email.split('@')[0];
+        var role = 'comercial';
+        try {
+          var doc = await _db2.collection('Users').doc(user.uid).get();
+          if (doc.exists) {
+            var perfil = doc.data();
+            role = perfil.role || 'comercial';
+            if (perfil.name) name = perfil.name;
+            if (perfil.active === false) { alert('Conta desativada.'); _auth.signOut(); return; }
+          }
+        } catch(e) { console.error('Erro ao buscar perfil:', e); }
+
+        loginScreen.classList.remove('active');
+        if (window._stopParticles) window._stopParticles();
+        showWelcomeIntro(name).then(function() {
+          document.getElementById('main-content').style.display = 'block';
+          if (role === 'admin') document.getElementById('btn-gerenciar-users').style.display = 'block';
+          // Carrega dados do Firestore
+          var db = firebase.app().firestore();
+          db.collection("respostas").get().then(function(snap) {
+            dados = [];
+            snap.forEach(function(doc) { dados.push(doc.data()); });
+            if (dados.length === 0) { carregarComExemplos(); }
+            else { document.getElementById("badge-modo").innerHTML = ""; aplicarFiltros(); }
+          }).catch(function() { carregarComExemplos(); });
+        });
+        window.currentUserRole = role;
+
+      } else {
+        loginScreen.classList.add('active');
+        document.getElementById('main-content').style.display = 'none';
+      }
+    });
+
+  } catch(e) {
+    console.error('Firebase init error:', e);
+    carregarComExemplos();
+    document.getElementById('login-screen').classList.remove('active');
+    document.getElementById('main-content').style.display = 'block';
+  }
 }
 
 if (typeof firebase !== "undefined") carregarFirebase();
@@ -1828,56 +1869,15 @@ else carregarComExemplos();
     }
   }
 
-  // ─── INIT AUTH ───
+  // ─── ENTER KEY NO LOGIN ───
   document.addEventListener('DOMContentLoaded', function() {
-    try {
-      if (!firebase.apps.length) firebase.initializeApp(fbConfig);
-      _auth = firebase.app().auth();
-      _db2  = firebase.app().firestore();
-
-      ['login-email','login-pass'].forEach(function(id) {
-        document.getElementById(id).addEventListener('keydown', function(e) {
-          if (e.key==='Enter') fazerLogin();
-        });
-      });
-
-      document.addEventListener('click', function(e) {
-        if (e.target===document.getElementById('user-mgmt-modal')) fecharUserMgmt();
-      });
-
-      _auth.onAuthStateChanged(async function(user) {
-        var loginScreen = document.getElementById('login-screen');
-        if (user) {
-          try {
-            var doc = await _db2.collection('Users').doc(user.uid).get();
-            var perfil = doc.exists ? doc.data() : {};
-            var role = perfil.role || 'admin';
-            loginScreen.classList.remove('active');
-            if (window._stopParticles) window._stopParticles();
-            showWelcomeIntro(name).then(function() {
-              document.getElementById('main-content').style.display = 'block';
-              if (role==='admin') document.getElementById('btn-gerenciar-users').style.display = 'block';
-            });
-            window.currentUserRole = role;
-          } catch(e) {
-            loginScreen.classList.remove('active');
-            if (window._stopParticles) window._stopParticles();
-            showWelcomeIntro('Admin').then(function() {
-              document.getElementById('main-content').style.display = 'block';
-              document.getElementById('btn-gerenciar-users').style.display = 'block';
-            });
-            window.currentUserRole = 'admin';
-          }
-        } else {
-          loginScreen.classList.add('active');
-          document.getElementById('main-content').style.display = 'none';
-        }
-      });
-    } catch(e) {
-      console.error('Auth init error:', e);
-      document.getElementById('login-screen').classList.remove('active');
-      document.getElementById('main-content').style.display = 'block';
-    }
+    ['login-email','login-pass'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) el.addEventListener('keydown', function(e) { if (e.key==='Enter') fazerLogin(); });
+    });
+    document.addEventListener('click', function(e) {
+      if (e.target===document.getElementById('user-mgmt-modal')) fecharUserMgmt();
+    });
   });
 
 </script>
