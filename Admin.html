@@ -440,7 +440,7 @@ input#busca:focus { border-color: #3b82f6; }
 .login-error.show{display:block}
 .login-version{text-align:center;margin-top:18px;font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(148,163,184,0.28);letter-spacing:.08em}
 /* ─── WELCOME INTRO ─── */
-#welcome-intro{display:none;opacity:0;position:fixed;inset:0;z-index:9998;background:#020408;flex-direction:column;align-items:center;justify-content:center;transition:opacity .4s ease}
+#welcome-intro{display:none;opacity:0;position:fixed;inset:0;z-index:9000;background:#020408;flex-direction:column;align-items:center;justify-content:center;transition:opacity .4s ease}
 @keyframes logoPulse{0%{filter:drop-shadow(0 0 22px rgba(96,165,250,0.4))}100%{filter:drop-shadow(0 0 42px rgba(96,165,250,0.8))}}
 /* ─── USER MANAGEMENT ─── */
 #user-mgmt-modal {
@@ -1395,18 +1395,19 @@ function carregarFirebase() {
 
         loginScreen.classList.remove('active');
         if (window._stopParticles) window._stopParticles();
-        showWelcomeIntro(name).then(function() {
-          document.getElementById('main-content').style.display = 'block';
-          if (role === 'admin') document.getElementById('btn-gerenciar-users').style.display = 'block';
-          // Carrega dados do Firestore
-          var db = firebase.app().firestore();
-          db.collection("respostas").get().then(function(snap) {
-            dados = [];
-            snap.forEach(function(doc) { dados.push(doc.data()); });
-            if (dados.length === 0) { carregarComExemplos(); }
-            else { document.getElementById("badge-modo").innerHTML = ""; aplicarFiltros(); }
-          }).catch(function() { carregarComExemplos(); });
-        });
+        // Mostra welcome intro por cima do dashboard
+        showWelcomeIntro(name);
+        // Mostra dashboard imediatamente
+        document.getElementById('main-content').style.display = 'block';
+        if (role === 'admin') document.getElementById('btn-gerenciar-users').style.display = 'block';
+        // Carrega dados do Firestore
+        var db = firebase.app().firestore();
+        db.collection("respostas").get().then(function(snap) {
+          dados = [];
+          snap.forEach(function(doc) { dados.push(doc.data()); });
+          if (dados.length === 0) { carregarComExemplos(); }
+          else { document.getElementById("badge-modo").innerHTML = ""; aplicarFiltros(); }
+        }).catch(function() { carregarComExemplos(); });
         window.currentUserRole = role;
 
       } else {
