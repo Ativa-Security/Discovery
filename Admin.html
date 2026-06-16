@@ -1514,6 +1514,175 @@ else carregarComExemplos();
     win.document.write(html);
     win.document.close();
   }
+
+  // ─── AUTH CONFIG ───
+  var _auth;
+  var _db2;
+  var fbConfig = {
+    apiKey: "AIzaSyBcgwi6ba7BsxWmA-58NA5_8FZzPXfgUfM",
+    authDomain: "questionario-de-maturidade.firebaseapp.com",
+    projectId: "questionario-de-maturidade"
+  };
+  var _fbConfig = fbConfig;
+
+  // Função global de login
+  function fazerLogin() {
+    var email = document.getElementById('login-email').value.trim();
+    var pass  = document.getElementById('login-pass').value;
+    var btn   = document.getElementById('login-btn');
+    var err   = document.getElementById('login-error');
+    err.classList.remove('show');
+    if (!email || !pass) { err.textContent = 'Preencha e-mail e senha.'; err.classList.add('show'); return; }
+    btn.disabled = true; btn.textContent = 'Entrando...';
+    _auth.signInWithEmailAndPassword(email, pass)
+      .then(function() { btn.disabled = false; btn.textContent = 'Entrar'; })
+      .catch(function(e) {
+        var msgs = {
+          'auth/user-not-found':'Usuário não encontrado.',
+          'auth/wrong-password':'Senha incorreta.',
+          'auth/invalid-email':'E-mail inválido.',
+          'auth/invalid-credential':'E-mail ou senha incorretos.',
+          'auth/too-many-requests':'Muitas tentativas. Aguarde alguns minutos.'
+        };
+        err.textContent = msgs[e.code] || 'Erro ao entrar. Tente novamente.';
+        err.classList.add('show');
+        btn.disabled = false; btn.textContent = 'Entrar';
+      });
+  }
+
+  function fazerLogout() {
+    document.getElementById('main-content').style.display = 'none';
+    if (_auth) _auth.signOut();
+  }
+
+  // ─── USER MANAGEMENT ───
+  function avCores(name) {
+    var colors = [{bg:'#1e3a5f',text:'#60a5fa'},{bg:'#1a3a2a',text:'#4ade80'},{bg:'#3b1a2a',text:'#f472b6'},{bg:'#2d1a3a',text:'#a78bfa'},{bg:'#3a2a1a',text:'#fb923c'}];
+    return colors[(name||'?').charCodeAt(0) % colors.length];
+  }
+  function iniciais(name) { return (name||'?').split(' ').map(function(w){return w[0];}).slice(0,2).join('').toUpperCase(); }
+
+  function abrirUserMgmt() { document.getElementById('user-mgmt-modal').classList.add('active'); renderUsuarios(); }
+  function fecharUserMgmt() { document.getElementById('user-mgmt-modal').classList.remove('active'); }
+
+  async function renderUsuarios() {
+    var lista = document.getElementById('umgmt-lista');
+    lista.innerHTML = '<div style="color:#7c8fa6;font-size:.82rem;padding:12px">Carregando...</div>';
+    try {
+      var snap = await _db2.collection('Users').get();
+      var users = [];
+      snap.forEach(function(d){ users.push(Object.assign({}, d.data(), {docId: d.id})); });
+      users.sort(function(a,b){ return (a.name||'').localeCompare(b.name||''); });
+      if (!users.length) { lista.innerHTML = '<div style="color:#7c8fa6;font-size:.82rem;padding:12px">Nenhum usuário.</div>'; return; }
+      lista.innerHTML = users.map(function(u) {
+        var av = avCores(u.name||u.email);
+        var ativo = u.active !== false;
+        return '<div class="user-row">' +
+          '<div class="user-avatar" style="background:'+av.bg+';color:'+av.text+'">'+iniciais(u.name||u.email)+'</div>' +
+          '<div class="user-row-info"><div class="user-row-name">'+(u.name||'—')+'</div><div class="user-row-email">'+u.email+'</div></div>' +
+          '<span class="status-badge '+(ativo?'status-ativo':'status-inativo')+'">'+(ativo?'Ativo':'Inativo')+'</span>' +
+          '<select class="role-select" onchange="atualizarRole(\''+u.docId+'\',this.value)">'+
+            '<option value="admin"'+(u.role==='admin'?' selected':'')+'>Admin</option>'+
+            '<option value="comercial"'+(u.role==='comercial'?' selected':'')+'>Comercial</option>'+
+          '</select>' +
+          '<button class="umgmt-icon-btn" title="'+(ativo?'Inativar':'Ativar')+'" onclick="toggleAtivo(\''+u.docId+'\','+ativo+')" style="color:'+(ativo?'#f59e0b':'#4ade80')+'">'+(ativo?'⏸':'▶')+'</button>' +
+          '<button class="umgmt-icon-btn" title="Redefinir senha" onclick="redefinirSenha(\''+u.email+'\')" style="color:#60a5fa">🔑</button>' +
+        '</div>';
+      }).join('');
+    } catch(e) { lista.innerHTML = '<div style="color:#f87171;font-size:.82rem;padding:12px">Erro: '+e.message+'</div>'; }
+  }
+
+  async function atualizarRole(docId, role) {
+    try { await _db2.collection('Users').doc(docId).update({role: role}); }
+    catch(e) { alert('Erro: '+e.message); }
+  }
+
+  async function toggleAtivo(docId, atual) {
+    try { await _db2.collection('Users').doc(docId).update({active: !atual}); renderUsuarios(); }
+    catch(e) { alert('Erro: '+e.message); }
+  }
+
+  async function redefinirSenha(email) {
+    try { await _auth.sendPasswordResetEmail(email); alert('✅ E-mail de redefinição enviado para: '+email); }
+    catch(e) { alert('Erro: '+(e.code==='auth/user-not-found'?'Usuário não encontrado.':e.message)); }
+  }
+
+  async function adminCriarUsuario() {
+    var name=document.getElementById('au-name').value.trim();
+    var email=document.getElementById('au-email').value.trim();
+    var pass=document.getElementById('au-pass').value;
+    var role=document.getElementById('au-role').value;
+    var err=document.getElementById('au-error');
+    var btn=document.getElementById('au-btn');
+    err.classList.remove('show');
+    if (!name||!email||!pass) { err.textContent='Preencha todos os campos.'; err.classList.add('show'); return; }
+    if (pass.length<6) { err.textContent='Senha mínimo 6 caracteres.'; err.classList.add('show'); return; }
+    btn.disabled=true; btn.textContent='Criando...';
+    try {
+      var appName='sec-'+Date.now();
+      var sec=firebase.initializeApp(_fbConfig, appName);
+      var secAuth=sec.auth();
+      var cred=await secAuth.createUserWithEmailAndPassword(email, pass);
+      await secAuth.signOut();
+      await sec.delete();
+      await _db2.collection('Users').doc(cred.user.uid).set({uid:cred.user.uid,name:name,email:email,role:role,active:true,createdAt:new Date().toISOString()});
+      btn.disabled=false; btn.textContent='Criar usuário';
+      ['au-name','au-email','au-pass'].forEach(function(id){document.getElementById(id).value='';});
+      renderUsuarios();
+    } catch(e) {
+      var msgs={'auth/email-already-in-use':'E-mail já cadastrado.','auth/invalid-email':'E-mail inválido.','auth/weak-password':'Senha muito fraca.'};
+      err.textContent=msgs[e.code]||'Erro: '+e.message;
+      err.classList.add('show');
+      btn.disabled=false; btn.textContent='Criar usuário';
+    }
+  }
+
+  // ─── INIT AUTH ───
+  document.addEventListener('DOMContentLoaded', function() {
+    try {
+      if (!firebase.apps.length) firebase.initializeApp(fbConfig);
+      _auth = firebase.app().auth();
+      _db2  = firebase.app().firestore();
+
+      ['login-email','login-pass'].forEach(function(id) {
+        document.getElementById(id).addEventListener('keydown', function(e) {
+          if (e.key==='Enter') fazerLogin();
+        });
+      });
+
+      document.addEventListener('click', function(e) {
+        if (e.target===document.getElementById('user-mgmt-modal')) fecharUserMgmt();
+      });
+
+      _auth.onAuthStateChanged(async function(user) {
+        var loginScreen = document.getElementById('login-screen');
+        if (user) {
+          try {
+            var doc = await _db2.collection('Users').doc(user.uid).get();
+            var perfil = doc.exists ? doc.data() : {};
+            var role = perfil.role || 'admin';
+            loginScreen.classList.remove('active');
+            document.getElementById('main-content').style.display = 'block';
+            if (role==='admin') document.getElementById('btn-gerenciar-users').style.display = 'block';
+            window.currentUserRole = role;
+          } catch(e) {
+            loginScreen.classList.remove('active');
+            document.getElementById('main-content').style.display = 'block';
+            document.getElementById('btn-gerenciar-users').style.display = 'block';
+            window.currentUserRole = 'admin';
+          }
+        } else {
+          loginScreen.classList.add('active');
+          document.getElementById('main-content').style.display = 'none';
+        }
+      });
+    } catch(e) {
+      console.error('Auth init error:', e);
+      document.getElementById('login-screen').classList.remove('active');
+      document.getElementById('main-content').style.display = 'block';
+    }
+  });
+
 </script>
 </body>
 </html>
