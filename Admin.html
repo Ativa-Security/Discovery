@@ -411,7 +411,7 @@ input#busca:focus { border-color: #3b82f6; }
 }
 
 /* ─── LOGIN SCREEN ─── */
-#login-screen{position:fixed;inset:0;z-index:9999;background:#020408;display:flex;align-items:center;justify-content:center;overflow:hidden}
+#login-screen{position:fixed;inset:0;z-index:9999;background:#020408;display:none;align-items:center;justify-content:center;overflow:hidden}
 #login-screen::before{content:'';position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");opacity:0.035;pointer-events:none;z-index:0}
 #login-screen::after{content:'';position:absolute;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 65% 55% at 20% 40%,rgba(37,99,235,0.2) 0%,transparent 70%),radial-gradient(ellipse 45% 45% at 80% 65%,rgba(96,165,250,0.1) 0%,transparent 70%),radial-gradient(ellipse 55% 65% at 50% 0%,rgba(14,30,80,0.7) 0%,transparent 60%);animation:orbPulse 8s ease-in-out infinite alternate}
 @keyframes orbPulse{0%{opacity:.7;transform:scale(1)}100%{opacity:1;transform:scale(1.04)}}
