@@ -662,32 +662,32 @@ input#busca:focus { border-color: #3b82f6; }
     <input id="busca" placeholder="🔍 Buscar por nome ou empresa...">
   </div>
 
-  <div class="filtros" style="flex-wrap:wrap;gap:8px;align-items:center;">
+  <div class="filtros">
     <button class="fbtn ativo-todos" id="btn-todos"  onclick="filtrarNivel('todos')">Todos</button>
     <button class="fbtn"             id="btn-alta"   onclick="filtrarNivel('alta')">🟢 Alta</button>
     <button class="fbtn"             id="btn-media"  onclick="filtrarNivel('media')">🟡 Média</button>
     <button class="fbtn"             id="btn-baixa"  onclick="filtrarNivel('baixa')">🔴 Baixa</button>
+  </div>
 
-    <div style="display:flex;align-items:center;gap:6px;margin-left:auto;flex-wrap:wrap;">
-      <!-- Filtro de data -->
-      <div style="display:flex;align-items:center;gap:6px;">
-        <input type="date" id="filtro-data-ini" onchange="aplicarFiltros()"
-          style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:6px 10px;color:#e2e8f0;font-size:0.75rem;outline:none;cursor:pointer;">
-        <span style="color:#7c8fa6;font-size:0.75rem;">até</span>
-        <input type="date" id="filtro-data-fim" onchange="aplicarFiltros()"
-          style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:6px 10px;color:#e2e8f0;font-size:0.75rem;outline:none;cursor:pointer;">
-        <button onclick="limparDatas()" title="Limpar datas"
-          style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:6px 10px;color:#7c8fa6;font-size:0.75rem;cursor:pointer;">✕</button>
-      </div>
-      <!-- Ordenação -->
-      <select id="filtro-ordem" onchange="aplicarFiltros()"
-        style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:6px 10px;color:#e2e8f0;font-size:0.75rem;outline:none;cursor:pointer;">
-        <option value="recente">⬇ Mais recente</option>
-        <option value="antigo">⬆ Mais antigo</option>
-        <option value="maior">⬇ Maior score</option>
-        <option value="menor">⬆ Menor score</option>
-      </select>
-    </div>
+  <!-- Filtros de data e ordenação -->
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
+    <span style="font-size:0.72rem;color:#7c8fa6;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;">📅 Período:</span>
+    <input type="date" id="filtro-data-ini" onchange="aplicarFiltros()"
+      style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:6px 10px;color:#e2e8f0;font-size:0.75rem;outline:none;cursor:pointer;font-family:inherit;">
+    <span style="color:#7c8fa6;font-size:0.75rem;">até</span>
+    <input type="date" id="filtro-data-fim" onchange="aplicarFiltros()"
+      style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:6px 10px;color:#e2e8f0;font-size:0.75rem;outline:none;cursor:pointer;font-family:inherit;">
+    <button onclick="limparDatas()"
+      style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:6px 10px;color:#7c8fa6;font-size:0.75rem;cursor:pointer;">✕ Limpar</button>
+    <div style="width:1px;height:20px;background:rgba(255,255,255,0.1);margin:0 4px;"></div>
+    <span style="font-size:0.72rem;color:#7c8fa6;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;">⇅ Ordenar:</span>
+    <select id="filtro-ordem" onchange="aplicarFiltros()"
+      style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:6px 10px;color:#e2e8f0;font-size:0.75rem;outline:none;cursor:pointer;font-family:inherit;">
+      <option value="recente">Mais recente</option>
+      <option value="antigo">Mais antigo</option>
+      <option value="maior">Maior score</option>
+      <option value="menor">Menor score</option>
+    </select>
   </div>
 
   <div class="contador" id="contador">Carregando...</div>
