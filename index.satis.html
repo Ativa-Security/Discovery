@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pesquisa de Satisfação — Treinamento Ativa Security</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-base:      #050d1a;
+      --bg-surface:   #0a1628;
+      --bg-card:      #0d1e35;
+      --bg-input:     #091524;
+      --border-dim:   #1a3050;
+      --border-mid:   #1e4080;
+      --accent:       #00c2ff;
+      --accent-dim:   #0077aa;
+      --accent-glow:  rgba(0, 194, 255, 0.12);
+      --accent-soft:  rgba(0, 194, 255, 0.07);
+      --cyan-dark:    #003d55;
+      --green:        #00e5a0;
+      --green-dim:    rgba(0, 229, 160, 0.12);
+      --text-primary: #e8f4ff;
+      --text-secondary: #6b90b8;
+      --text-muted:   #3d5a78;
+      --radius-sm:    6px;
+      --radius-md:    10px;
+      --radius-lg:    14px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+      background: var(--bg-base);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 2rem 1rem 4rem;
+      background-image:
+        linear-gradient(rgba(0,194,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,194,255,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    /* ── Marca d'água ── */
+    #app-watermark {
+      position: fixed;
+      right: -2%;
+      bottom: -4%;
+      width: 420px;
+      max-width: 55vw;
+      opacity: 0.045;
+      pointer-events: none;
+      z-index: 0;
+      filter: drop-shadow(0 0 40px var(--accent));
+    }
+
+    .page-wrapper { max-width: 720px; margin: 0 auto; position: relative; z-index: 1; }
+
+    /* ── Logomark ── */
+    .ativa-mark { display: block; }
+    .ativa-mark .stroke { fill: var(--accent); }
+    .ativa-mark .bar { fill: var(--text-primary); }
+
+    /* ── Header ── */
+    .survey-header { text-align: center; padding: 2.5rem 2rem 2rem; margin-bottom: 1.5rem; position: relative; }
+    .brand-row { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 1.5rem; }
+    .brand-logo { height: 48px; width: auto; filter: drop-shadow(0 0 12px var(--accent-glow)); }
+    .brand-name { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 19px; letter-spacing: -0.01em; }
+    .brand-name span { color: var(--accent); }
+    .brand-sub { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-muted); }
+
+    .header-badge { display: inline-flex; align-items: center; gap: 7px; background: var(--accent-soft); border: 1px solid var(--border-mid); color: var(--accent); font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; padding: 5px 14px; border-radius: 20px; margin-bottom: 1.25rem; }
+    .badge-dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 6px var(--accent); animation: pulse 2s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+    .survey-title { font-size: 30px; font-weight: 700; color: var(--text-primary); line-height: 1.2; margin-bottom: 10px; letter-spacing: -0.02em; }
+    .survey-title span { color: var(--accent); }
+    .survey-subtitle { font-size: 15px; color: var(--text-secondary); line-height: 1.6; max-width: 460px; margin: 0 auto; }
+
+    /* ── Progress ── */
+    .progress-wrap { background: var(--bg-card); border: 1px solid var(--border-dim); border-radius: var(--radius-lg); padding: 1rem 1.25rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 16px; }
+    .progress-text { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-secondary); white-space: nowrap; }
+    .progress-bar { flex: 1; height: 4px; background: var(--border-dim); border-radius: 2px; overflow: hidden; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent-dim), var(--accent)); border-radius: 2px; width: 0%; transition: width 0.4s cubic-bezier(.4,0,.2,1); box-shadow: 0 0 8px var(--accent); }
+    .progress-label { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 500; color: var(--accent); white-space: nowrap; min-width: 48px; text-align: right; }
+
+    /* ── Cards ── */
+    .card { background: var(--bg-card); border: 1px solid var(--border-dim); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 1.25rem; position: relative; overflow: hidden; }
+    .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--accent-dim), transparent); }
+    .section-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 1.25rem; display: flex; align-items: center; gap: 10px; }
+    .section-label::before { content: '//'; color: var(--text-muted); }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border-dim); }
+
+    /* ── Fields ── */
+    .fields-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .fields-grid .full { grid-column: 1 / -1; }
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field label { font-size: 12px; font-weight: 500; color: var(--text-secondary); letter-spacing: 0.02em; }
+    .field input, .field textarea { padding: 10px 13px; border: 1px solid var(--border-dim); border-radius: var(--radius-sm); font-family: 'Space Grotesk', sans-serif; font-size: 14px; color: var(--text-primary); background: var(--bg-input); transition: border-color 0.15s, box-shadow 0.15s; outline: none; }
+    .field input:focus, .field textarea:focus { border-color: var(--accent-dim); box-shadow: 0 0 0 3px var(--accent-glow); }
+    .field input::placeholder, .field textarea::placeholder { color: var(--text-muted); }
+    .field textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
+
+    /* ── Question cards ── */
+    .q-card { background: var(--bg-surface); border: 1px solid var(--border-dim); border-radius: var(--radius-lg); padding: 1.25rem 1.5rem; margin-bottom: 10px; transition: border-color 0.2s, box-shadow 0.2s; }
+    .q-card.answered { border-color: var(--accent-dim); box-shadow: 0 0 12px var(--accent-glow); }
+    .q-meta { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; }
+    .q-text { font-size: 14px; font-weight: 500; color: var(--text-primary); line-height: 1.55; margin-bottom: 1rem; }
+
+    /* ── Options ── */
+    .options { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+    .opt-btn { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 5px; border: 1px solid var(--border-dim); border-radius: var(--radius-md); background: var(--bg-input); cursor: pointer; transition: all 0.15s; font-family: 'Space Grotesk', sans-serif; }
+    .opt-btn:hover { border-color: var(--accent-dim); background: var(--accent-soft); transform: translateY(-2px); }
+    .opt-btn.selected { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 10px var(--accent-glow); }
+    .opt-icon { font-size: 22px; line-height: 1; }
+    .opt-label { font-size: 10px; font-weight: 500; color: var(--text-secondary); text-align: center; line-height: 1.3; }
+    .opt-btn.selected .opt-label { color: var(--accent); }
+
+    /* ── Submit ── */
+    .submit-wrap { text-align: center; margin-top: 1.5rem; }
+    .submit-note { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-muted); margin-bottom: 1rem; letter-spacing: 0.02em; }
+    .submit-btn { display: inline-flex; align-items: center; gap: 10px; padding: 14px 48px; background: var(--accent); color: var(--bg-base); border: none; border-radius: var(--radius-md); font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.15s; letter-spacing: 0.02em; box-shadow: 0 0 20px rgba(0,194,255,0.3); }
+    .submit-btn:hover { background: #33cfff; box-shadow: 0 0 30px rgba(0,194,255,0.5); transform: translateY(-1px); }
+    .submit-btn:active { transform: scale(0.98); }
+    .submit-btn:disabled { opacity: 0.6; cursor: wait; }
+    .submit-btn svg { width: 16px; height: 16px; }
+
+    /* ── Success ── */
+    .success-screen { display: none; text-align: center; padding: 3.5rem 2rem; background: var(--bg-card); border: 1px solid var(--border-dim); border-radius: var(--radius-lg); position: relative; overflow: hidden; }
+    .success-screen::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--green), transparent); }
+    .success-mark { height: 38px; width: auto; margin: 0 auto 1.25rem; display:block; opacity: 0.95; filter: drop-shadow(0 0 10px var(--accent-glow)); }
+    .success-icon { width: 64px; height: 64px; background: var(--green-dim); border: 1px solid rgba(0,229,160,0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem; animation: popIn .5s cubic-bezier(.2,1.4,.4,1); }
+    @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
+    .success-icon svg { width: 28px; height: 28px; color: var(--green); }
+    .success-title { font-size: 22px; font-weight: 700; color: var(--text-primary); margin-bottom: 10px; }
+    .success-text { font-size: 14px; color: var(--text-secondary); line-height: 1.6; max-width: 420px; margin: 0 auto 1.75rem; }
+    .success-brand { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); margin-bottom: 1.5rem; }
+    .new-survey-btn { padding: 10px 28px; border: 1px solid var(--border-mid); border-radius: var(--radius-md); background: transparent; font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 500; color: var(--text-secondary); cursor: pointer; transition: all 0.15s; }
+    .new-survey-btn:hover { border-color: var(--accent-dim); color: var(--accent); }
+
+    .page-footer { text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-muted); margin-top: 2.5rem; letter-spacing: 0.05em; }
+
+    /* ── INTRO BEM-VINDO ── */
+    #intro { position: fixed; inset: 0; z-index: 9999; background: #020408; display: flex; align-items: center; justify-content: center; overflow: hidden; transition: opacity .7s ease; }
+    #intro.hide { opacity: 0; pointer-events: none; }
+    #intro-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+    .intro-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(0,194,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(0,194,255,0.06) 1px, transparent 1px); background-size: 46px 46px; mask-image: radial-gradient(circle at 50% 50%, #000 10%, transparent 70%); -webkit-mask-image: radial-gradient(circle at 50% 50%, #000 10%, transparent 70%); }
+    .intro-orb { position: absolute; border-radius: 50%; filter: blur(70px); opacity: .5; animation: orbPulse 8s ease-in-out infinite; }
+    .orb1 { width: 380px; height: 380px; background: #0077aa; top: -10%; left: -8%; }
+    .orb2 { width: 340px; height: 340px; background: #00c2ff; bottom: -12%; right: -6%; animation-delay: 2s; }
+    @keyframes orbPulse { 0%,100% { opacity: .35; transform: scale(1); } 50% { opacity: .6; transform: scale(1.15); } }
+    .intro-scan { position: absolute; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, rgba(0,194,255,.6), transparent); animation: scan 5s linear infinite; }
+    @keyframes scan { 0% { top: -2%; } 100% { top: 102%; } }
+    .intro-corner { position: absolute; width: 38px; height: 38px; border: 2px solid rgba(0,194,255,.4); }
+    .ic-tl { top: 24px; left: 24px; border-right: none; border-bottom: none; }
+    .ic-tr { top: 24px; right: 24px; border-left: none; border-bottom: none; }
+    .ic-bl { bottom: 24px; left: 24px; border-right: none; border-top: none; }
+    .ic-br { bottom: 24px; right: 24px; border-left: none; border-top: none; }
+    .intro-content { position: relative; z-index: 2; text-align: center; padding: 2rem; }
+    .intro-logo { width: 80px; height: auto; margin: 0 auto 1.75rem; animation: logoPulse 2.4s ease-in-out infinite; filter: drop-shadow(0 0 22px rgba(0,194,255,.55)); }
+    @keyframes logoPulse { 0%,100% { transform: scale(1); filter: drop-shadow(0 0 18px rgba(0,194,255,.4)); } 50% { transform: scale(1.07); filter: drop-shadow(0 0 30px rgba(0,194,255,.7)); } }
+    .intro-welcome { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--accent); margin-bottom: 14px; opacity: 0; animation: fadeUp .8s .2s forwards; }
+    .intro-title { font-family: 'Space Grotesk', sans-serif; font-size: 30px; font-weight: 700; color: #fff; line-height: 1.25; letter-spacing: -0.02em; margin-bottom: 12px; opacity: 0; animation: fadeUp .8s .4s forwards; }
+    .intro-title span { color: var(--accent); }
+    .intro-sub { font-size: 14px; color: #6b90b8; max-width: 380px; margin: 0 auto 2.25rem; line-height: 1.6; opacity: 0; animation: fadeUp .8s .6s forwards; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+    .intro-prog { width: 220px; height: 3px; background: rgba(0,194,255,.15); border-radius: 2px; margin: 0 auto; overflow: hidden; opacity: 0; animation: fadeUp .8s .7s forwards; }
+    .intro-prog-fill { height: 100%; width: 0; background: linear-gradient(90deg, #0077aa, #00c2ff); box-shadow: 0 0 10px #00c2ff; border-radius: 2px; animation: fillBar 2.6s .8s ease forwards; }
+    @keyframes fillBar { to { width: 100%; } }
+
+    @media (max-width: 560px) {
+      .fields-grid { grid-template-columns: 1fr; }
+      .fields-grid .full { grid-column: auto; }
+      .options { gap: 5px; }
+      .opt-btn { padding: 8px 3px; }
+      .opt-icon { font-size: 18px; }
+      .opt-label { font-size: 9px; }
+      .survey-title { font-size: 24px; }
+      .intro-title { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ INTRO BEM-VINDO ══ -->
+<div id="intro">
+  <canvas id="intro-canvas"></canvas>
+  <div class="intro-grid"></div>
+  <div class="intro-orb orb1"></div>
+  <div class="intro-orb orb2"></div>
+  <div class="intro-scan"></div>
+  <span class="intro-corner ic-tl"></span><span class="intro-corner ic-tr"></span>
+  <span class="intro-corner ic-bl"></span><span class="intro-corner ic-br"></span>
+  <div class="intro-content">
+    <img class="intro-logo" src="data:image/png;base64,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" alt="Ativa" />
+    <div class="intro-welcome">Bem-vindo</div>
+    <h1 class="intro-title">Pesquisa de <span>Satisfação</span></h1>
+    <p class="intro-sub">Treinamento in loco · Ativa Security<br>Sua opinião nos ajuda a treinar cada vez melhor.</p>
+    <div class="intro-prog"><div class="intro-prog-fill"></div></div>
+  </div>
+</div>
+
+<!-- Marca d'água de fundo -->
+<img id="app-watermark" src="data:image/png;base64,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" alt="" />
+
+<div class="page-wrapper">
+
+  <div class="survey-header">
+    <div class="brand-row">
+      <img class="brand-logo" src="data:image/png;base64,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" alt="Ativa Security" />
+    </div>
+    <div class="brand-sub" style="margin-bottom:1.25rem">Treinamento In Loco</div>
+    <div class="header-badge"><span class="badge-dot"></span> pesquisa de satisfação</div>
+    <h1 class="survey-title">Como foi o <span>treinamento?</span></h1>
+    <p class="survey-subtitle">Leva apenas alguns minutos. Sua opinião nos ajuda a melhorar continuamente a qualidade dos nossos treinamentos práticos.</p>
+  </div>
+
+  <div id="survey-form">
+
+    <div class="progress-wrap">
+      <span class="progress-text">progresso</span>
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+      <span class="progress-label" id="progress-label">0 / 10</span>
+    </div>
+
+    <div class="card">
+      <div class="section-label">Dados do participante</div>
+      <div class="fields-grid">
+        <div class="field"><label for="nome">Nome completo</label><input type="text" id="nome" placeholder="Seu nome completo" /></div>
+        <div class="field"><label for="empresa">Empresa</label><input type="text" id="empresa" placeholder="Nome da empresa" /></div>
+        <div class="field"><label for="cargo">Cargo</label><input type="text" id="cargo" placeholder="Seu cargo atual" /></div>
+        <div class="field"><label for="telefone">Número para contato</label><input type="tel" id="telefone" placeholder="(00) 00000-0000" /></div>
+        <div class="field"><label for="email">E-mail</label><input type="email" id="email" placeholder="seu@email.com" /></div>
+        <div class="field"><label for="tema">Tema do treinamento</label><input type="text" id="tema" placeholder="Ex: Acronis, EDR, Redes..." /></div>
+        <div class="field full"><label for="treinador">Treinador / Instrutor</label><input type="text" id="treinador" placeholder="Nome do treinador responsável" /></div>
+      </div>
+    </div>
+
+    <div class="card" style="padding: 1.5rem 1.5rem 0.5rem;">
+      <div class="section-label">Avaliação do treinamento</div>
+      <div id="questions-container"></div>
+    </div>
+
+    <div class="card">
+      <div class="section-label">Observações finais</div>
+      <div class="field"><label for="comentarios">Comentários adicionais (opcional)</label><textarea id="comentarios" placeholder="Deixe aqui sugestões, elogios ou críticas construtivas que possam nos ajudar a melhorar..."></textarea></div>
+    </div>
+
+    <div class="submit-wrap">
+      <p class="submit-note">// respostas confidenciais — uso interno apenas</p>
+      <button class="submit-btn" id="submit-btn" onclick="submitSurvey()">
+        Enviar avaliação
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+
+  </div>
+
+  <div class="success-screen" id="success-screen">
+    <img class="success-mark" src="data:image/png;base64,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" alt="Ativa Security" />
+    <div class="success-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <div class="success-brand">Ativa Security</div>
+    <h2 class="success-title">Obrigado pela sua participação!</h2>
+    <p class="success-text">Sua avaliação foi enviada com sucesso. Cada feedback nos ajuda a entregar treinamentos práticos cada vez melhores — e a continuar atuando lado a lado com você.</p>
+    <button class="new-survey-btn" onclick="resetSurvey()">Preencher novamente</button>
+  </div>
+
+  <div class="page-footer">// Ativa Security &mdash; pesquisa de satisfação &mdash; uso interno</div>
+
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+<script>
+  // ── Firebase ──
+  var db = null;
+  try {
+    firebase.initializeApp({ apiKey:"AIzaSyBcgwi6ba7BsxWmA-58NA5_8FZzPXfgUfM", authDomain:"questionario-de-maturidade.firebaseapp.com", projectId:"questionario-de-maturidade" });
+    db = firebase.firestore();
+  } catch(e) { console.warn('Firebase indisponível', e); }
+
+  // ── Intro ──
+  (function(){
+    var c = document.getElementById('intro-canvas'), ctx = c.getContext('2d'), parts = [], raf;
+    function size(){ c.width = innerWidth; c.height = innerHeight; }
+    size(); addEventListener('resize', size);
+    for (var i=0;i<70;i++) parts.push({ x:Math.random()*c.width, y:Math.random()*c.height, vx:(Math.random()-.5)*.4, vy:(Math.random()-.5)*.4, r:Math.random()*1.6+.4 });
+    function draw(){
+      ctx.clearRect(0,0,c.width,c.height);
+      for (var i=0;i<parts.length;i++){
+        var p=parts[i]; p.x+=p.vx; p.y+=p.vy;
+        if(p.x<0||p.x>c.width)p.vx*=-1; if(p.y<0||p.y>c.height)p.vy*=-1;
+        ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,6.283); ctx.fillStyle='rgba(0,194,255,.55)'; ctx.fill();
+        for(var j=i+1;j<parts.length;j++){ var q=parts[j],dx=p.x-q.x,dy=p.y-q.y,d=Math.sqrt(dx*dx+dy*dy);
+          if(d<90){ ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(q.x,q.y); ctx.strokeStyle='rgba(0,194,255,'+(.12*(1-d/90))+')'; ctx.stroke(); } }
+      }
+      raf=requestAnimationFrame(draw);
+    }
+    draw();
+    setTimeout(function(){
+      var el=document.getElementById('intro'); el.classList.add('hide');
+      cancelAnimationFrame(raf);
+      setTimeout(function(){ el.style.display='none'; }, 750);
+    }, 3400);
+  })();
+
+  // ── Perguntas (05 e 07 corrigidas) ──
+  const questions = [
+    'Como você avalia o conteúdo abordado no treinamento?',
+    'A carga horária foi adequada para o conteúdo apresentado?',
+    'O treinador demonstrou domínio e conhecimento do tema?',
+    'Como você avalia a didática e a metodologia utilizada?',
+    'O acompanhamento prático lado a lado (hands-on) durante o treinamento foi eficaz para o seu aprendizado?',
+    'O treinamento atendeu às suas expectativas iniciais?',
+    'O ritmo do treinamento foi adequado ao seu nível de conhecimento e ao tempo disponível?',
+    'Você consegue aplicar o que foi aprendido no seu dia a dia de trabalho?',
+    'Como você avalia o suporte e a comunicação antes e durante o treinamento?',
+    'De forma geral, qual é o seu nível de satisfação com o treinamento?',
+  ];
+
+  const options = [
+    { icon: '😞', label: 'Muito insatisfeito' },
+    { icon: '😕', label: 'Insatisfeito' },
+    { icon: '😐', label: 'Neutro' },
+    { icon: '🙂', label: 'Satisfeito' },
+    { icon: '😄', label: 'Muito satisfeito' },
+  ];
+
+  const answers = {};
+
+  function renderQuestions() {
+    const container = document.getElementById('questions-container');
+    container.innerHTML = '';
+    questions.forEach((text, idx) => {
+      const qId = 'q' + (idx + 1);
+      const card = document.createElement('div');
+      card.className = 'q-card'; card.id = 'card-' + qId;
+      card.innerHTML = `
+        <div class="q-meta">pergunta ${String(idx + 1).padStart(2,'0')} / ${questions.length}</div>
+        <div class="q-text">${text}</div>
+        <div class="options">
+          ${options.map((o, oi) => `
+            <button class="opt-btn" onclick="selectOption('${qId}', ${oi + 1}, this)" title="${o.label}" aria-label="${o.label}">
+              <span class="opt-icon">${o.icon}</span>
+              <span class="opt-label">${o.label}</span>
+            </button>`).join('')}
+        </div>`;
+      container.appendChild(card);
+    });
+  }
+
+  function selectOption(qId, value, btn) {
+    answers[qId] = value;
+    const card = document.getElementById('card-' + qId);
+    card.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected'); card.classList.add('answered');
+    updateProgress();
+  }
+
+  function updateProgress() {
+    const total = questions.length, answered = Object.keys(answers).length;
+    document.getElementById('progress-fill').style.width = Math.round((answered/total)*100) + '%';
+    document.getElementById('progress-label').textContent = answered + ' / ' + total;
+  }
+
+  async function submitSurvey() {
+    const answered = Object.keys(answers).length;
+    if (answered < questions.length) {
+      alert('Por favor, responda todas as perguntas antes de enviar.\nFaltam ' + (questions.length - answered) + ' resposta(s).');
+      for (let i = 1; i <= questions.length; i++) {
+        if (!answers['q' + i]) { document.getElementById('card-q' + i).scrollIntoView({ behavior:'smooth', block:'center' }); break; }
+      }
+      return;
+    }
+    const btn = document.getElementById('submit-btn');
+    btn.disabled = true; btn.firstChild.textContent = 'Enviando... ';
+
+    const respostas = {};
+    questions.forEach((t, i) => { respostas['q' + (i+1)] = { pergunta: t, nota: answers['q' + (i+1)] }; });
+    const notas = Object.values(answers);
+    const payload = {
+      nome: val('nome'), empresa: val('empresa'), cargo: val('cargo'), telefone: val('telefone'),
+      email: val('email'), tema: val('tema'), treinador: val('treinador'), comentarios: val('comentarios'),
+      respostas: respostas,
+      media: Math.round((notas.reduce((a,b)=>a+b,0)/notas.length)*100)/100,
+      criadoEm: new Date().toISOString(),
+      timestamp: db ? firebase.firestore.FieldValue.serverTimestamp() : null
+    };
+
+    try {
+      if (db) await db.collection('respostas_treinamento').add(payload);
+    } catch (e) { console.warn('Falha ao salvar', e); }
+
+    document.getElementById('survey-form').style.display = 'none';
+    document.getElementById('success-screen').style.display = 'block';
+    document.getElementById('success-screen').scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+
+  function val(id){ return document.getElementById(id).value.trim(); }
+
+  function resetSurvey() {
+    Object.keys(answers).forEach(k => delete answers[k]);
+    ['nome','empresa','cargo','telefone','email','tema','treinador','comentarios'].forEach(id => document.getElementById(id).value = '');
+    const btn = document.getElementById('submit-btn'); btn.disabled = false; btn.firstChild.textContent = 'Enviar avaliação ';
+    renderQuestions(); updateProgress();
+    document.getElementById('success-screen').style.display = 'none';
+    document.getElementById('survey-form').style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // Máscara telefone
+  document.getElementById('telefone').addEventListener('input', function(e){
+    let v = e.target.value.replace(/\D/g,'').slice(0,11);
+    if (v.length > 6) v = '(' + v.slice(0,2) + ') ' + v.slice(2,7) + '-' + v.slice(7);
+    else if (v.length > 2) v = '(' + v.slice(0,2) + ') ' + v.slice(2);
+    else if (v.length > 0) v = '(' + v;
+    e.target.value = v;
+  });
+
+  renderQuestions();
+</script>
+</body>
+</html>

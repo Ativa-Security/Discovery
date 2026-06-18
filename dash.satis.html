@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dashboard — Pesquisa de Satisfação | Ativa Security</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{--bg-base:#050d1a;--bg-surface:#0a1628;--bg-card:#0d1e35;--bg-input:#091524;--border-dim:#1a3050;--border-mid:#1e4080;--accent:#00c2ff;--accent-dim:#0077aa;--accent-glow:rgba(0,194,255,.12);--accent-soft:rgba(0,194,255,.07);--green:#00e5a0;--amber:#ffb020;--red:#ff5470;--text-primary:#e8f4ff;--text-secondary:#6b90b8;--text-muted:#3d5a78;--r:14px}
+  body{font-family:'Space Grotesk',sans-serif;background:var(--bg-base);color:var(--text-primary);min-height:100vh;padding:1.5rem 1rem 4rem;background-image:linear-gradient(rgba(0,194,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,194,255,.03) 1px,transparent 1px);background-size:40px 40px}
+  .wrap{max-width:1080px;margin:0 auto}
+  .ativa-mark .stroke{fill:var(--accent)} .ativa-mark .bar{fill:var(--text-primary)}
+  .head{display:flex;align-items:center;gap:14px;padding:1rem 0 1.5rem;flex-wrap:wrap}
+  .head .brand-logo{height:40px;width:auto;filter:drop-shadow(0 0 10px var(--accent-glow))}
+  .head h1{font-size:20px;font-weight:700;letter-spacing:-.01em}
+  .head h1 span{color:var(--accent)}
+  .head .sub{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--text-muted)}
+  .head .right{margin-left:auto;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .badge{font-family:'JetBrains Mono',monospace;font-size:11px;padding:5px 12px;border-radius:20px;border:1px solid var(--border-mid);color:var(--accent);background:var(--accent-soft)}
+  select,.btn{font-family:'Space Grotesk',sans-serif;font-size:13px;padding:8px 12px;border-radius:8px;border:1px solid var(--border-dim);background:var(--bg-input);color:var(--text-primary);cursor:pointer;outline:none}
+  .btn:hover{border-color:var(--accent-dim)}
+  .filtros{margin-bottom:14px;padding:1.25rem 1.5rem}
+  .frow{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
+  .frow label{display:flex;flex-direction:column;gap:5px;font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-secondary)}
+  .frow label.grow{flex:1;min-width:180px}
+  .frow input,.frow select{font-family:'Space Grotesk',sans-serif;font-size:13px;padding:8px 10px;border-radius:8px;border:1px solid var(--border-dim);background:var(--bg-input);color:var(--text-primary);outline:none}
+  .frow input:focus,.frow select:focus{border-color:var(--accent-dim);box-shadow:0 0 0 3px var(--accent-glow)}
+  .frow input[type=date]{color-scheme:dark}
+  .btn.limpar{color:var(--text-secondary)}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:14px}
+  /* login */
+  #login{position:fixed;inset:0;z-index:200;background:#020408;display:flex;align-items:center;justify-content:center;padding:1.5rem;overflow:hidden}
+  #login.hide{display:none}
+  .login-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,194,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(0,194,255,.05) 1px,transparent 1px);background-size:46px 46px;mask-image:radial-gradient(circle at 50% 50%,#000 5%,transparent 70%);-webkit-mask-image:radial-gradient(circle at 50% 50%,#000 5%,transparent 70%)}
+  .login-card{position:relative;z-index:2;width:100%;max-width:360px;background:var(--bg-card);border:1px solid var(--border-mid);border-radius:var(--r);padding:2.25rem 2rem;text-align:center;box-shadow:0 0 40px rgba(0,194,255,.1)}
+  .login-logo{height:42px;width:auto;margin-bottom:1.5rem;filter:drop-shadow(0 0 14px var(--accent-glow))}
+  .login-title{font-size:18px;font-weight:700;margin-bottom:4px}
+  .login-sub{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-muted);margin-bottom:1.75rem}
+  .lf{display:block;text-align:left;font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-secondary);margin-bottom:1rem}
+  .lf input{width:100%;margin-top:6px;padding:11px 13px;border:1px solid var(--border-dim);border-radius:8px;background:var(--bg-input);color:var(--text-primary);font-family:'Space Grotesk';font-size:14px;outline:none}
+  .lf input:focus{border-color:var(--accent-dim);box-shadow:0 0 0 3px var(--accent-glow)}
+  .lg-err{color:var(--red);font-size:12px;min-height:16px;margin-bottom:10px;text-align:left}
+  .lg-btn{width:100%;padding:12px;background:var(--accent);color:var(--bg-base);border:none;border-radius:8px;font-family:'Space Grotesk';font-weight:700;font-size:15px;cursor:pointer;box-shadow:0 0 20px rgba(0,194,255,.3)}
+  .lg-btn:hover{background:#33cfff} .lg-btn:disabled{opacity:.6;cursor:wait}
+  /* usuarios */
+  .userpill{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--text-primary)}
+  .userpill .rb{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.08em;text-transform:uppercase;padding:2px 7px;border-radius:5px}
+  .rb.admin{background:var(--accent-soft);color:var(--accent);border:1px solid var(--border-mid)}
+  .rb.usuario{background:rgba(0,229,160,.1);color:var(--green);border:1px solid rgba(0,229,160,.3)}
+  .urow{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-dim)}
+  .urow:last-child{border:none}
+  .urow .ui{flex:1;min-width:0}
+  .urow .ui .un{font-size:14px;font-weight:500}
+  .urow .ui .ue{font-size:11px;color:var(--text-muted);font-family:'JetBrains Mono',monospace}
+  .urow select{font-family:'Space Grotesk';font-size:12px;padding:5px 8px;border-radius:7px;border:1px solid var(--border-dim);background:var(--bg-input);color:var(--text-primary)}
+  .urow .del{background:none;border:1px solid var(--border-dim);color:var(--text-secondary);border-radius:7px;padding:5px 9px;cursor:pointer;font-size:12px}
+  .urow .del:hover{border-color:var(--red);color:var(--red)}
+  .adduser{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-top:1.25rem;padding-top:1.25rem;border-top:1px dashed var(--border-dim)}
+  .adduser label{display:flex;flex-direction:column;gap:5px;font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-secondary);flex:1;min-width:140px}
+  .adduser input,.adduser select{font-family:'Space Grotesk';font-size:13px;padding:8px 10px;border-radius:8px;border:1px solid var(--border-dim);background:var(--bg-input);color:var(--text-primary);outline:none}
+  .adduser input:focus,.adduser select:focus{border-color:var(--accent-dim);box-shadow:0 0 0 3px var(--accent-glow)}
+  .adduser .btn{flex:none}
+  .u-err{color:var(--red);font-size:12px;min-height:16px;margin-top:8px}
+  .u-err.ok{color:var(--green)}
+  .kpi{background:var(--bg-card);border:1px solid var(--border-dim);border-radius:var(--r);padding:1.25rem;position:relative;overflow:hidden}
+  .kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent-dim),transparent)}
+  .kpi .lbl{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-secondary);margin-bottom:8px}
+  .kpi .val{font-size:32px;font-weight:700;line-height:1}
+  .kpi .val small{font-size:15px;color:var(--text-secondary);font-weight:500}
+  .grid2{display:grid;grid-template-columns:1.2fr 1fr;gap:14px;margin-bottom:14px}
+  .card{background:var(--bg-card);border:1px solid var(--border-dim);border-radius:var(--r);padding:1.5rem;position:relative;overflow:hidden}
+  .card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent-dim),transparent)}
+  .sec{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:1.25rem;display:flex;align-items:center;gap:10px}
+  .sec::before{content:'//';color:var(--text-muted)} .sec::after{content:'';flex:1;height:1px;background:var(--border-dim)}
+  .qbar{margin-bottom:12px}
+  .qbar .top{display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;color:var(--text-secondary);gap:10px}
+  .qbar .top b{color:var(--text-primary);font-weight:600}
+  .qbar .track{height:7px;background:var(--bg-input);border-radius:4px;overflow:hidden}
+  .qbar .fill{height:100%;border-radius:4px;transition:width .6s}
+  .rank-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-dim)}
+  .rank-row:last-child{border:none}
+  .rank-pos{width:24px;height:24px;border-radius:6px;background:var(--accent-soft);color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:12px;display:flex;align-items:center;justify-content:center;font-weight:600}
+  .rank-name{flex:1;font-size:14px;font-weight:500}
+  .rank-meta{font-size:11px;color:var(--text-muted)}
+  .rank-score{font-size:15px;font-weight:700;color:var(--accent)}
+  .resp-card{background:var(--bg-surface);border:1px solid var(--border-dim);border-radius:12px;padding:14px 16px;margin-bottom:10px;cursor:pointer;transition:.15s;display:flex;align-items:center;gap:14px}
+  .resp-card:hover{border-color:var(--accent-dim);box-shadow:0 0 12px var(--accent-glow)}
+  .resp-score{width:48px;height:48px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;flex-shrink:0}
+  .resp-info{flex:1;min-width:0}
+  .resp-info .n{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .resp-info .m{font-size:11px;color:var(--text-muted);font-family:'JetBrains Mono',monospace}
+  .resp-emoji{font-size:24px}
+  .empty{text-align:center;color:var(--text-muted);padding:2rem;font-family:'JetBrains Mono',monospace;font-size:13px}
+  /* modal */
+  .ov{display:none;position:fixed;inset:0;background:rgba(2,6,12,.85);z-index:100;align-items:flex-start;justify-content:center;padding:2rem 1rem;overflow-y:auto}
+  .ov.show{display:flex}
+  .modal{background:var(--bg-card);border:1px solid var(--border-mid);border-radius:var(--r);max-width:600px;width:100%;padding:1.75rem}
+  .modal h2{font-size:19px;margin-bottom:4px}
+  .modal .mm{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-muted);margin-bottom:1.25rem}
+  .mgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px 18px;margin-bottom:1.25rem;font-size:13px}
+  .mgrid div span{color:var(--text-muted);font-size:11px;display:block;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.06em}
+  .mq{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--border-dim);font-size:13px}
+  .mq:last-of-type{border:none}
+  .mq .pill{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;padding:3px 9px;border-radius:6px;white-space:nowrap}
+  .mcom{background:var(--bg-input);border:1px solid var(--border-dim);border-radius:10px;padding:12px 14px;font-size:13px;line-height:1.6;color:var(--text-secondary);margin-top:1rem}
+  .mclose{margin-top:1.5rem;width:100%;padding:11px;background:var(--accent);color:var(--bg-base);border:none;border-radius:10px;font-weight:700;font-family:'Space Grotesk';font-size:14px;cursor:pointer}
+  @media(max-width:760px){.kpis{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:1fr}.mgrid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<!-- LOGIN -->
+<div id="login">
+  <div class="login-grid"></div>
+  <div class="login-card">
+    <img id="login-logo" class="login-logo" alt="Ativa Security" />
+    <div class="login-title">Dashboard de Treinamentos</div>
+    <div class="login-sub">// acesso restrito · Ativa Security</div>
+    <label class="lf">E-mail<input type="email" id="lg-email" placeholder="seu@ativait.com.br" autocomplete="username" onkeydown="if(event.key==='Enter')entrar()" /></label>
+    <label class="lf">Senha<input type="password" id="lg-senha" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')entrar()" /></label>
+    <div class="lg-err" id="lg-err"></div>
+    <button class="lg-btn" id="lg-btn" onclick="entrar()">Entrar</button>
+  </div>
+</div>
+
+<div class="wrap" id="app" style="display:none">
+  <div class="head">
+    <img class="brand-logo" src="data:image/png;base64,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" alt="Ativa Security" />
+    <div>
+      <h1>Dashboard <span>Treinamentos</span></h1>
+      <div class="sub">Pesquisa de Satisfação · Ativa Security</div>
+    </div>
+    <div class="right">
+      <span class="userpill" id="userpill"></span>
+      <span class="badge" id="badge-modo"></span>
+      <button class="btn" onclick="exportarCSV()">Exportar CSV</button>
+      <button class="btn" onclick="firebase.auth().signOut()">Sair</button>
+    </div>
+  </div>
+
+  <div class="card filtros">
+    <div class="sec">Filtros</div>
+    <div class="frow">
+      <label>De<input type="date" id="f-de" onchange="aplicar()"></label>
+      <label>Até<input type="date" id="f-ate" onchange="aplicar()"></label>
+      <label>Treinador<select id="f-treinador" onchange="aplicar()"><option value="">Todos</option></select></label>
+      <label>Empresa<select id="f-empresa" onchange="aplicar()"><option value="">Todas</option></select></label>
+      <label>Tema<select id="f-tema" onchange="aplicar()"><option value="">Todos</option></select></label>
+      <label>Satisfação<select id="f-sat" onchange="aplicar()"><option value="">Qualquer</option><option value="4">Satisfeitos (≥4)</option><option value="3">Neutros (3–3,9)</option><option value="0">Insatisfeitos (&lt;3)</option></select></label>
+      <label class="grow">Busca<input type="text" id="f-busca" placeholder="nome, e-mail, comentário..." oninput="aplicar()"></label>
+      <button class="btn limpar" onclick="limparFiltros()">Limpar</button>
+    </div>
+  </div>
+
+  <div class="kpis">
+    <div class="kpi"><div class="lbl">Respostas</div><div class="val" id="k-total">0</div></div>
+    <div class="kpi"><div class="lbl">Média geral</div><div class="val" id="k-media">—<small>/5</small></div></div>
+    <div class="kpi"><div class="lbl">Satisfeitos (4–5)</div><div class="val" id="k-sat">0<small>%</small></div></div>
+    <div class="kpi"><div class="lbl">Melhor treinador</div><div class="val" id="k-best" style="font-size:18px">—</div></div>
+  </div>
+
+  <div class="grid2">
+    <div class="card"><div class="sec">Média por pergunta</div><div id="perguntas"></div></div>
+    <div class="card"><div class="sec">Ranking de treinadores</div><div id="ranking"></div></div>
+  </div>
+
+  <div class="card"><div class="sec">Respostas recebidas</div><div id="lista"></div></div>
+
+  <div class="card" id="card-usuarios" style="display:none">
+    <div class="sec">Usuários e acessos</div>
+    <div id="lista-usuarios"></div>
+    <div class="adduser">
+      <label>Nome<input type="text" id="u-nome" placeholder="Nome completo"></label>
+      <label>E-mail<input type="email" id="u-email" placeholder="email@ativait.com.br"></label>
+      <label>Senha<input type="password" id="u-senha" placeholder="mín. 6 caracteres"></label>
+      <label>Perfil<select id="u-role"><option value="usuario">Usuário</option><option value="admin">Admin</option></select></label>
+      <button class="btn limpar" id="u-btn" onclick="addUser()">Adicionar usuário</button>
+    </div>
+    <div class="u-err" id="u-err"></div>
+  </div>
+</div>
+
+<div class="ov" id="ov" onclick="if(event.target===this)fechar()">
+  <div class="modal" id="modal"></div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script>
+const PERGUNTAS = [
+  'Conteúdo abordado','Carga horária','Domínio do treinador','Didática e metodologia',
+  'Acompanhamento prático (hands-on)','Atendeu às expectativas','Ritmo do treinamento',
+  'Aplicabilidade no dia a dia','Suporte e comunicação','Satisfação geral'
+];
+const EMO = ['😞','😕','😐','🙂','😄'];
+function cor(n){ return n>=4?'var(--green)':n>=3?'var(--amber)':'var(--red)'; }
+function emo(n){ return EMO[Math.max(0,Math.min(4,Math.round(n)-1))]; }
+
+let dados = [], filtrados = [];
+
+function notasArr(r){ return PERGUNTAS.map((_,i)=> (r.respostas && r.respostas['q'+(i+1)] ? r.respostas['q'+(i+1)].nota : 0)); }
+function mediaResp(r){ if(typeof r.media==='number') return r.media; const a=notasArr(r).filter(Boolean); return a.length? a.reduce((x,y)=>x+y,0)/a.length : 0; }
+
+function aplicar(){
+  const ft=document.getElementById('f-treinador').value;
+  const fe=document.getElementById('f-empresa').value;
+  const ftm=document.getElementById('f-tema').value;
+  const fde=document.getElementById('f-de').value;
+  const fate=document.getElementById('f-ate').value;
+  const fsat=document.getElementById('f-sat').value;
+  const fb=document.getElementById('f-busca').value.trim().toLowerCase();
+  const deTs=fde?new Date(fde+'T00:00:00').getTime():null;
+  const ateTs=fate?new Date(fate+'T23:59:59').getTime():null;
+  filtrados=dados.filter(r=>{
+    if(ft && (r.treinador||'')!==ft) return false;
+    if(fe && (r.empresa||'')!==fe) return false;
+    if(ftm && (r.tema||'')!==ftm) return false;
+    if(deTs||ateTs){ const t=r.criadoEm?new Date(r.criadoEm).getTime():0;
+      if(deTs&&t<deTs) return false; if(ateTs&&t>ateTs) return false; }
+    if(fsat!==''){ const m=mediaResp(r);
+      if(fsat==='4'&&m<4) return false;
+      if(fsat==='3'&&(m<3||m>=4)) return false;
+      if(fsat==='0'&&m>=3) return false; }
+    if(fb){ const blob=[r.nome,r.empresa,r.cargo,r.email,r.telefone,r.tema,r.treinador,r.comentarios].join(' ').toLowerCase();
+      if(!blob.includes(fb)) return false; }
+    return true;
+  });
+  render();
+}
+function limparFiltros(){
+  ['f-treinador','f-empresa','f-tema','f-sat'].forEach(id=>document.getElementById(id).value='');
+  ['f-de','f-ate','f-busca'].forEach(id=>document.getElementById(id).value='');
+  aplicar();
+}
+
+function render(){
+  const n = filtrados.length;
+  document.getElementById('k-total').textContent = n;
+  if(!n){
+    document.getElementById('k-media').innerHTML='—<small>/5</small>';
+    document.getElementById('k-sat').innerHTML='0<small>%</small>';
+    document.getElementById('k-best').textContent='—';
+    document.getElementById('perguntas').innerHTML='<div class="empty">Sem dados</div>';
+    document.getElementById('ranking').innerHTML='<div class="empty">Sem dados</div>';
+    document.getElementById('lista').innerHTML='<div class="empty">Nenhuma resposta recebida ainda</div>';
+    return;
+  }
+  const medias = filtrados.map(mediaResp);
+  const geral = medias.reduce((a,b)=>a+b,0)/n;
+  document.getElementById('k-media').innerHTML = geral.toFixed(2)+'<small>/5</small>';
+
+  // satisfeitos: % de notas individuais >=4
+  let tot=0,sat=0;
+  filtrados.forEach(r=>notasArr(r).forEach(x=>{ if(x){tot++; if(x>=4)sat++;} }));
+  document.getElementById('k-sat').innerHTML = (tot?Math.round(sat/tot*100):0)+'<small>%</small>';
+
+  // média por pergunta
+  let ph='';
+  PERGUNTAS.forEach((p,i)=>{
+    let s=0,c=0; filtrados.forEach(r=>{ const v=r.respostas&&r.respostas['q'+(i+1)]?r.respostas['q'+(i+1)].nota:0; if(v){s+=v;c++;} });
+    const m=c?s/c:0;
+    ph+=`<div class="qbar"><div class="top"><b>${p}</b><span>${m.toFixed(2)}</span></div><div class="track"><div class="fill" style="width:${m/5*100}%;background:${cor(m)}"></div></div></div>`;
+  });
+  document.getElementById('perguntas').innerHTML=ph;
+
+  // ranking treinadores
+  const tr={};
+  filtrados.forEach(r=>{ const t=(r.treinador||'Não informado').trim(); (tr[t]=tr[t]||[]).push(mediaResp(r)); });
+  const rk=Object.entries(tr).map(([t,a])=>({t,m:a.reduce((x,y)=>x+y,0)/a.length,n:a.length})).sort((a,b)=>b.m-a.m);
+  document.getElementById('ranking').innerHTML = rk.map((r,i)=>`<div class="rank-row"><div class="rank-pos">${i+1}</div><div class="rank-name">${esc(r.t)}<div class="rank-meta">${r.n} avaliação(ões)</div></div><div class="rank-score">${r.m.toFixed(2)}</div></div>`).join('');
+  document.getElementById('k-best').textContent = rk[0] ? rk[0].t : '—';
+
+  // lista
+  const ord=[...filtrados].sort((a,b)=>(b.criadoEm||'').localeCompare(a.criadoEm||''));
+  document.getElementById('lista').innerHTML = ord.map((r)=>{
+    const idx=dados.indexOf(r); const m=mediaResp(r);
+    const dt=r.criadoEm?new Date(r.criadoEm).toLocaleDateString('pt-BR'):'';
+    return `<div class="resp-card" onclick="abrir(${idx})">
+      <div class="resp-score" style="background:${cor(m)}22;color:${cor(m)}">${m.toFixed(1)}</div>
+      <div class="resp-info"><div class="n">${esc(r.nome||'Anônimo')} ${r.empresa?'· '+esc(r.empresa):''}</div>
+      <div class="m">${esc(r.tema||'—')} · ${esc(r.treinador||'—')} · ${dt}</div></div>
+      <div class="resp-emoji">${emo(m)}</div></div>`;
+  }).join('');
+}
+
+function abrir(i){
+  const r=dados[i];
+  let qs='';
+  PERGUNTAS.forEach((p,k)=>{ const v=r.respostas&&r.respostas['q'+(k+1)]?r.respostas['q'+(k+1)].nota:0;
+    qs+=`<div class="mq"><span>${esc(p)}</span><span class="pill" style="background:${cor(v)}22;color:${cor(v)}">${emo(v)} ${v||'—'}</span></div>`; });
+  const dt=r.criadoEm?new Date(r.criadoEm).toLocaleString('pt-BR'):'';
+  document.getElementById('modal').innerHTML=`
+    <h2>${esc(r.nome||'Anônimo')}</h2><div class="mm">Média ${mediaResp(r).toFixed(2)}/5 · ${dt}</div>
+    <div class="mgrid">
+      <div><span>Empresa</span>${esc(r.empresa||'—')}</div><div><span>Cargo</span>${esc(r.cargo||'—')}</div>
+      <div><span>Tema</span>${esc(r.tema||'—')}</div><div><span>Treinador</span>${esc(r.treinador||'—')}</div>
+      <div><span>E-mail</span>${esc(r.email||'—')}</div><div><span>Telefone</span>${esc(r.telefone||'—')}</div>
+    </div>
+    ${qs}
+    ${r.comentarios?`<div class="mcom">"${esc(r.comentarios)}"</div>`:''}
+    <button class="mclose" onclick="fechar()">Fechar</button>`;
+  document.getElementById('ov').classList.add('show');
+}
+function fechar(){ document.getElementById('ov').classList.remove('show'); }
+function esc(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+function popularFiltro(){
+  const fill=(id,key)=>{ const sel=document.getElementById(id);
+    [...new Set(dados.map(r=>(r[key]||'').trim()).filter(Boolean))].sort()
+      .forEach(v=>{ const o=document.createElement('option'); o.value=v;o.textContent=v;sel.appendChild(o); }); };
+  fill('f-treinador','treinador'); fill('f-empresa','empresa'); fill('f-tema','tema');
+}
+
+function exportarCSV(){
+  const head=['Nome','Empresa','Cargo','Email','Telefone','Tema','Treinador','Media',...PERGUNTAS,'Comentarios','Data'];
+  const rows=filtrados.map(r=>[r.nome,r.empresa,r.cargo,r.email,r.telefone,r.tema,r.treinador,mediaResp(r).toFixed(2),
+    ...PERGUNTAS.map((_,i)=>r.respostas&&r.respostas['q'+(i+1)]?r.respostas['q'+(i+1)].nota:''),r.comentarios,r.criadoEm||'']);
+  const csv=[head,...rows].map(l=>l.map(c=>'"'+String(c==null?'':c).replace(/"/g,'""')+'"').join(';')).join('\n');
+  const a=document.createElement('a'); a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);
+  a.download='respostas-treinamento.csv'; a.click();
+}
+
+// ── Firebase ──
+function exemplo(){
+  document.getElementById('badge-modo').textContent='⚠️ modo demonstração';
+  dados=[
+    {nome:'Carlos Pereira',empresa:'Sabará',cargo:'Analista TI',tema:'Acronis Backup',treinador:'Leandro de Assis',email:'carlos@sabara.com',telefone:'(11) 99999-0000',comentarios:'Treinamento prático excelente, aprendi de verdade.',criadoEm:'2026-06-17T14:00:00Z',respostas:obj([5,4,5,5,5,5,4,5,4,5])},
+    {nome:'Ana Lima',empresa:'Toray',cargo:'Coordenadora',tema:'EDR',treinador:'Gilmar da Silva',email:'ana@toray.com',telefone:'(11) 98888-1111',comentarios:'',criadoEm:'2026-06-16T10:00:00Z',respostas:obj([4,3,5,4,5,4,4,4,3,4])},
+    {nome:'Bruno Souza',empresa:'Agilitty',cargo:'Infra',tema:'Redes',treinador:'Leandro de Assis',email:'bruno@agilitty.com',telefone:'(11) 97777-2222',comentarios:'Poderia ter um pouco mais de tempo.',criadoEm:'2026-06-15T16:00:00Z',respostas:obj([5,3,5,5,5,4,3,5,5,5])}
+  ];
+  finish();
+}
+function obj(a){ const o={}; a.forEach((n,i)=>o['q'+(i+1)]={pergunta:PERGUNTAS[i],nota:n}); return o; }
+function finish(){ popularFiltro(); aplicar(); }
+
+try{
+  firebase.initializeApp({apiKey:"AIzaSyBcgwi6ba7BsxWmA-58NA5_8FZzPXfgUfM",authDomain:"questionario-de-maturidade.firebaseapp.com",projectId:"questionario-de-maturidade"});
+}catch(e){}
+
+function carregarDados(){
+  try{
+    firebase.firestore().collection('respostas_treinamento').get().then(s=>{
+      dados=[]; s.forEach(d=>dados.push(d.data()));
+      if(!dados.length){ exemplo(); }
+      else { document.getElementById('badge-modo').textContent='● ao vivo'; finish(); }
+    }).catch(exemplo);
+  }catch(e){ exemplo(); }
+}
+
+// ── Usuários / papéis ──
+let me_=null; // {uid,email,role,nome}
+const UCOL='usuarios_treinamento';
+
+async function resolverPapel(u){
+  const db=firebase.firestore();
+  const snap=await db.collection(UCOL).get();
+  if(snap.empty){ // bootstrap: primeiro usuário vira admin
+    const doc={uid:u.uid,email:u.email,nome:u.displayName||u.email.split('@')[0],role:'admin'};
+    await db.collection(UCOL).doc(u.uid).set(doc); return doc;
+  }
+  let mine=null; snap.forEach(d=>{ if(d.id===u.uid) mine=d.data(); });
+  if(!mine){ mine={uid:u.uid,email:u.email,nome:u.email.split('@')[0],role:'usuario'};
+    await db.collection(UCOL).doc(u.uid).set(mine); }
+  return mine;
+}
+
+function aplicarPapel(){
+  const pill=document.getElementById('userpill');
+  pill.innerHTML=`${esc(me_.nome||me_.email)} <span class="rb ${me_.role}">${me_.role}</span>`;
+  document.getElementById('card-usuarios').style.display = (me_.role==='admin')?'block':'none';
+  if(me_.role==='admin') renderUsuarios();
+}
+
+async function renderUsuarios(){
+  const cont=document.getElementById('lista-usuarios');
+  const snap=await firebase.firestore().collection(UCOL).get();
+  const us=[]; snap.forEach(d=>us.push(d.data())); us.sort((a,b)=>(a.nome||'').localeCompare(b.nome||''));
+  cont.innerHTML=us.map(u=>{
+    const eu=u.uid===me_.uid;
+    return `<div class="urow"><div class="ui"><div class="un">${esc(u.nome||'—')}${eu?' (você)':''}</div><div class="ue">${esc(u.email)}</div></div>
+      <select onchange="mudarPapel('${u.uid}',this.value)" ${eu?'disabled':''}>
+        <option value="usuario"${u.role==='usuario'?' selected':''}>Usuário</option>
+        <option value="admin"${u.role==='admin'?' selected':''}>Admin</option></select>
+      <button class="del" onclick="removerUsuario('${u.uid}','${esc(u.email)}')" ${eu?'disabled':''}>Remover</button></div>`;
+  }).join('');
+}
+
+async function mudarPapel(uid,role){
+  await firebase.firestore().collection(UCOL).doc(uid).update({role});
+  renderUsuarios();
+}
+async function removerUsuario(uid,email){
+  if(!confirm('Remover o acesso de '+email+' ao dashboard?\n(A conta de login continua existindo no Firebase Auth.)')) return;
+  await firebase.firestore().collection(UCOL).doc(uid).delete();
+  renderUsuarios();
+}
+
+async function addUser(){
+  const nome=document.getElementById('u-nome').value.trim();
+  const email=document.getElementById('u-email').value.trim();
+  const senha=document.getElementById('u-senha').value;
+  const role=document.getElementById('u-role').value;
+  const err=document.getElementById('u-err'); const btn=document.getElementById('u-btn');
+  err.className='u-err';
+  if(!nome||!email||senha.length<6){ err.textContent='Preencha nome, e-mail e senha (mín. 6 caracteres).'; return; }
+  btn.disabled=true; btn.textContent='Criando...';
+  // app secundário para não deslogar o admin
+  const cfg={apiKey:"AIzaSyBcgwi6ba7BsxWmA-58NA5_8FZzPXfgUfM",authDomain:"questionario-de-maturidade.firebaseapp.com",projectId:"questionario-de-maturidade"};
+  let sec;
+  try{ sec=firebase.initializeApp(cfg,'sec-'+Date.now()); }catch(e){ sec=firebase.app('sec'); }
+  try{
+    const cred=await sec.auth().createUserWithEmailAndPassword(email,senha);
+    const uid=cred.user.uid;
+    await firebase.firestore().collection(UCOL).doc(uid).set({uid,email,nome,role});
+    await sec.auth().signOut();
+    err.className='u-err ok'; err.textContent='Usuário criado com sucesso.';
+    document.getElementById('u-nome').value=''; document.getElementById('u-email').value=''; document.getElementById('u-senha').value='';
+    renderUsuarios();
+  }catch(e){
+    err.textContent = e.code==='auth/email-already-in-use' ? 'Este e-mail já possui conta.'
+      : e.code==='auth/weak-password' ? 'Senha muito fraca (mín. 6 caracteres).'
+      : 'Erro: '+e.code;
+  }finally{
+    btn.disabled=false; btn.textContent='Adicionar usuário';
+    try{ await sec.delete(); }catch(e){}
+  }
+}
+
+function entrar(){
+  const em=document.getElementById('lg-email').value.trim();
+  const pw=document.getElementById('lg-senha').value;
+  const err=document.getElementById('lg-err'); const btn=document.getElementById('lg-btn');
+  err.textContent=''; btn.disabled=true; btn.textContent='Entrando...';
+  firebase.auth().signInWithEmailAndPassword(em,pw).catch(e=>{
+    err.textContent = (e.code==='auth/invalid-credential'||e.code==='auth/wrong-password'||e.code==='auth/user-not-found')
+      ? 'E-mail ou senha incorretos.' : 'Erro ao entrar: '+e.code;
+    btn.disabled=false; btn.textContent='Entrar';
+  });
+}
+
+(function(){
+  const lg=document.getElementById('login'), app=document.getElementById('app');
+  const ll=document.getElementById('login-logo'), bl=document.querySelector('.brand-logo');
+  if(ll&&bl) ll.src=bl.src;
+  let carregou=false;
+  firebase.auth().onAuthStateChanged(async u=>{
+    if(u){
+      lg.classList.add('hide'); app.style.display='block';
+      try{ me_=await resolverPapel(u); aplicarPapel(); }catch(e){ me_={uid:u.uid,email:u.email,nome:u.email,role:'usuario'}; aplicarPapel(); }
+      if(!carregou){carregou=true;carregarDados();}
+    }
+    else { lg.classList.remove('hide'); app.style.display='none'; me_=null;
+      const b=document.getElementById('lg-btn'); if(b){b.disabled=false;b.textContent='Entrar';} }
+  });
+})();
+</script>
+</body>
+</html>
