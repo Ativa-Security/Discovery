@@ -683,10 +683,7 @@ input#busca:focus { border-color: #3b82f6; }
     <button class="fbtn"             id="btn-alta"   onclick="filtrarNivel('alta')">🟢 Alta</button>
     <button class="fbtn"             id="btn-media"  onclick="filtrarNivel('media')">🟡 Média</button>
     <button class="fbtn"             id="btn-baixa"  onclick="filtrarNivel('baixa')">🔴 Baixa</button>
-  </div>
-
-  <!-- Filtros de data e ordenação -->
-  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
+    <div style="margin-left:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
     <span style="font-size:0.72rem;color:#7c8fa6;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;">📅 Período:</span>
     <input type="date" id="filtro-data-ini" onchange="aplicarFiltros()"
       style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:6px 10px;color:#e2e8f0;font-size:0.75rem;outline:none;cursor:pointer;font-family:inherit;">
@@ -704,6 +701,7 @@ input#busca:focus { border-color: #3b82f6; }
       <option value="maior">Maior score</option>
       <option value="menor">Menor score</option>
     </select>
+    </div>
   </div>
 
   <div class="contador" id="contador">Carregando...</div>
