@@ -352,40 +352,43 @@ function carregarDados(){
 
 // ── Usuários / papéis ──
 let me_=null; // {uid,email,role,nome}
-const UCOL='usuarios_treinamento';
+const UCOL='Users';
+let rolesDisponiveis=['admin','comercial','tecnico','usuario'];
 
 async function resolverPapel(u){
   const db=firebase.firestore();
-  const snap=await db.collection(UCOL).get();
-  if(snap.empty){ // bootstrap: primeiro usuário vira admin
-    const doc={uid:u.uid,email:u.email,nome:u.displayName||u.email.split('@')[0],role:'admin'};
-    await db.collection(UCOL).doc(u.uid).set(doc); return doc;
-  }
-  let mine=null; snap.forEach(d=>{ if(d.id===u.uid) mine=d.data(); });
-  if(!mine){ mine={uid:u.uid,email:u.email,nome:u.email.split('@')[0],role:'usuario'};
-    await db.collection(UCOL).doc(u.uid).set(mine); }
+  let mine=null;
+  try{ const d=await db.collection(UCOL).doc(u.uid).get(); if(d.exists) mine=d.data(); }catch(e){}
+  if(!mine) mine={uid:u.uid,email:u.email,name:u.email.split('@')[0],role:'usuario'};
   return mine;
 }
+function ehAdminMe(){ return me_ && me_.role==='admin'; }
 
 function aplicarPapel(){
   const pill=document.getElementById('userpill');
-  pill.innerHTML=`${esc(me_.nome||me_.email)} <span class="rb ${me_.role}">${me_.role}</span>`;
-  document.getElementById('card-usuarios').style.display = (me_.role==='admin')?'block':'none';
-  if(me_.role==='admin') renderUsuarios();
+  const nome=me_.name||me_.nome||me_.email;
+  pill.innerHTML=`${esc(nome)} <span class="rb ${ehAdminMe()?'admin':'usuario'}">${esc(me_.role||'usuario')}</span>`;
+  document.getElementById('card-usuarios').style.display = ehAdminMe()?'block':'none';
+  if(ehAdminMe()) renderUsuarios();
 }
 
 async function renderUsuarios(){
   const cont=document.getElementById('lista-usuarios');
   const snap=await firebase.firestore().collection(UCOL).get();
-  const us=[]; snap.forEach(d=>us.push(d.data())); us.sort((a,b)=>(a.nome||'').localeCompare(b.nome||''));
+  const us=[]; snap.forEach(d=>us.push(Object.assign({uid:d.id},d.data())));
+  us.sort((a,b)=>((a.name||a.nome||'')+'').localeCompare((b.name||b.nome||'')+''));
+  // papéis existentes + padrões
+  const set=new Set(rolesDisponiveis); us.forEach(u=>{ if(u.role) set.add(u.role); });
+  rolesDisponiveis=[...set];
+  const opts=(sel)=>rolesDisponiveis.map(r=>`<option value="${r}"${r===sel?' selected':''}>${r}</option>`).join('');
   cont.innerHTML=us.map(u=>{
-    const eu=u.uid===me_.uid;
-    return `<div class="urow"><div class="ui"><div class="un">${esc(u.nome||'—')}${eu?' (você)':''}</div><div class="ue">${esc(u.email)}</div></div>
-      <select onchange="mudarPapel('${u.uid}',this.value)" ${eu?'disabled':''}>
-        <option value="usuario"${u.role==='usuario'?' selected':''}>Usuário</option>
-        <option value="admin"${u.role==='admin'?' selected':''}>Admin</option></select>
-      <button class="del" onclick="removerUsuario('${u.uid}','${esc(u.email)}')" ${eu?'disabled':''}>Remover</button></div>`;
+    const eu=u.uid===me_.uid; const nome=u.name||u.nome||'—';
+    return `<div class="urow"><div class="ui"><div class="un">${esc(nome)}${eu?' (você)':''}</div><div class="ue">${esc(u.email||'')}</div></div>
+      <select onchange="mudarPapel('${u.uid}',this.value)" ${eu?'disabled':''}>${opts(u.role||'usuario')}</select>
+      <button class="del" onclick="removerUsuario('${u.uid}','${esc(u.email||'')}')" ${eu?'disabled':''}>Remover</button></div>`;
   }).join('');
+  // popular select do formulário de adição
+  const ur=document.getElementById('u-role'); if(ur) ur.innerHTML=opts('usuario');
 }
 
 async function mudarPapel(uid,role){
@@ -393,7 +396,7 @@ async function mudarPapel(uid,role){
   renderUsuarios();
 }
 async function removerUsuario(uid,email){
-  if(!confirm('Remover o acesso de '+email+' ao dashboard?\n(A conta de login continua existindo no Firebase Auth.)')) return;
+  if(!confirm('Remover '+email+' da lista de usuários?\nAtenção: isso remove o acesso nos DOIS dashboards (maturidade e satisfação). A conta de login continua no Firebase Auth.')) return;
   await firebase.firestore().collection(UCOL).doc(uid).delete();
   renderUsuarios();
 }
@@ -407,14 +410,13 @@ async function addUser(){
   err.className='u-err';
   if(!nome||!email||senha.length<6){ err.textContent='Preencha nome, e-mail e senha (mín. 6 caracteres).'; return; }
   btn.disabled=true; btn.textContent='Criando...';
-  // app secundário para não deslogar o admin
   const cfg={apiKey:"AIzaSyBcgwi6ba7BsxWmA-58NA5_8FZzPXfgUfM",authDomain:"questionario-de-maturidade.firebaseapp.com",projectId:"questionario-de-maturidade"};
   let sec;
   try{ sec=firebase.initializeApp(cfg,'sec-'+Date.now()); }catch(e){ sec=firebase.app('sec'); }
   try{
     const cred=await sec.auth().createUserWithEmailAndPassword(email,senha);
     const uid=cred.user.uid;
-    await firebase.firestore().collection(UCOL).doc(uid).set({uid,email,nome,role});
+    await firebase.firestore().collection(UCOL).doc(uid).set({uid,email,name:nome,role,active:true,createdAt:new Date().toISOString()});
     await sec.auth().signOut();
     err.className='u-err ok'; err.textContent='Usuário criado com sucesso.';
     document.getElementById('u-nome').value=''; document.getElementById('u-email').value=''; document.getElementById('u-senha').value='';
